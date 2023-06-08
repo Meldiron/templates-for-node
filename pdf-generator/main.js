@@ -1,8 +1,10 @@
-const { PDFDocument } = require("pdf-lib");
+const { PDFDocument, PageSizes } = require("pdf-lib");
 
 async function createPdf({ name, items }) {
   const document = PDFDocument.create();
-  const page = document.addPage();
+  const page = document.addPage(PageSizes.A4);
+
+  page.drawText(new Date().toLocaleDateString(), { x: 50, y: 550, size: 25 });
 
   page.drawText(`Hello ${name}!`, { x: 50, y: 450, size: 50 });
 

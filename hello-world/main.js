@@ -1,4 +1,4 @@
 module.exports = async ({ res, log }) => {
-  log("We have a new request!");
+  log("Hello, World! 👋");
   return res.send("Hello, World! 👋");
 };
