@@ -1,7 +1,7 @@
 const { PDFDocument, PageSizes } = require("pdf-lib");
 
 async function createPdf({ name, items }) {
-  const document = PDFDocument.create();
+  const document = await PDFDocument.create();
   const page = document.addPage(PageSizes.A4);
 
   page.drawText(new Date().toLocaleDateString(), { x: 50, y: 550, size: 25 });
@@ -21,8 +21,6 @@ async function createPdf({ name, items }) {
 }
 
 module.exports = async ({ req, res, log, error }) => {
-  log("We have a new request!");
-
   if (!req.body) {
     error("Invalid request body");
     return res.json({ ok: false, msg: "Invalid request body" }, 400);
