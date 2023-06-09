@@ -17,7 +17,9 @@ async function createPdf({ name, items }) {
 
   page.drawText(orderList, { x: 50, y: 350, size: 25 });
 
-  return await document.save();
+  const pdfBytes = await document.save();
+
+  return Buffer.from(pdfBytes.buffer);
 }
 
 module.exports = async ({ req, res, log, error }) => {
@@ -26,7 +28,7 @@ module.exports = async ({ req, res, log, error }) => {
     return res.json({ ok: false, msg: "Invalid request body" }, 400);
   }
 
-  const pdfBytes = await createPdf(req.body);
+  const pdfBuffer = await createPdf(req.body);
 
-  return res.send(pdfBytes, 200, { "Content-Type": "application/pdf" });
+  return res.send(pdfBuffer, 200, { "Content-Type": "application/pdf" });
 };
