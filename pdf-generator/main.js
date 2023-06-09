@@ -22,7 +22,7 @@ function generateFakeOrder() {
     date: faker.date.past(),
     name: faker.person.fullName(),
     items,
-    total: items.reduce((acc, { cost }) => acc + cost, 0),
+    total: items.reduce((acc, { cost }) => acc + parseFloat(cost), 0),
   };
 }
 
@@ -30,17 +30,17 @@ async function createPdf({ id, date, name, items, total }) {
   const document = await PDFDocument.create();
   const page = document.addPage(PageSizes.A4); //[595.28, 841.89]
 
-  page.drawText("Sample Invoice", { x: 50, y: 750, size: 25 });
+  page.drawText("Sample Invoice", { x: 50, y: 750, size: 20 });
   page.drawText(new Date(date).toLocaleDateString(), {
     x: 400,
     y: 750,
-    size: 25,
+    size: 20,
   });
 
   page.drawText(`Hello ${name}!`, {
     x: 50,
     y: 700,
-    size: 50,
+    size: 30,
   });
 
   page.drawText(`Order ID: ${id}`, {
@@ -49,7 +49,7 @@ async function createPdf({ id, date, name, items, total }) {
     size: 10,
   });
 
-  page.drawText(`Total: $${total}`, { x: 50, y: 500, size: 10 });
+  page.drawText(`Total: $${total}`, { x: 50, y: 600, size: 15 });
 
   const orderList = items
     .map(
@@ -58,7 +58,7 @@ async function createPdf({ id, date, name, items, total }) {
     )
     .join("\n");
 
-  page.drawText(orderList, { x: 50, y: 450, size: 10 });
+  page.drawText(orderList, { x: 50, y: 550, size: 15 });
 
   const pdfBytes = await document.save();
 
