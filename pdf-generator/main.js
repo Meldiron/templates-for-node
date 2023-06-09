@@ -4,9 +4,9 @@ async function createPdf({ name, items }) {
   const document = await PDFDocument.create();
   const page = document.addPage(PageSizes.A4); //[595.28, 841.89]
 
-  page.drawText(new Date().toLocaleDateString(), { x: 50, y: 700, size: 25 });
+  page.drawText(new Date().toLocaleDateString(), { x: 50, y: 800, size: 25 });
 
-  page.drawText(`Hello ${name}!`, { x: 50, y: 600, size: 50 });
+  page.drawText(`Hello ${name}!`, { x: 50, y: 700, size: 50 });
 
   const orderList = items
     .map(
@@ -15,7 +15,7 @@ async function createPdf({ name, items }) {
     )
     .join("\n");
 
-  page.drawText(orderList, { x: 50, y: 350, size: 25 });
+  page.drawText(orderList, { x: 50, y: 450, size: 25 });
 
   const pdfBytes = await document.save();
 
