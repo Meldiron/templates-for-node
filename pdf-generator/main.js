@@ -30,7 +30,7 @@ async function createPdf({ id, date, name, items, total }) {
   const document = await PDFDocument.create();
   const page = document.addPage(PageSizes.A4); //[595.28, 841.89]
 
-  page.drawText("Sample Invoice", { x: 50, y: 750, size: 20 });
+  page.drawText("Sample Invoice", { x: 50, y: 750, size: 10 });
   page.drawText(new Date(date).toLocaleDateString(), {
     x: 400,
     y: 750,
