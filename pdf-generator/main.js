@@ -1,5 +1,5 @@
 const { PDFDocument, PageSizes } = require("pdf-lib");
-import { faker } from "@faker-js/faker";
+const { faker } = require("@faker-js/faker");
 
 module.exports = async ({ res }) => {
   const fakeOrder = generateFakeOrder();
