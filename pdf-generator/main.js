@@ -30,10 +30,10 @@ async function createPdf({ id, date, name, items, total }) {
   const document = await PDFDocument.create();
   const page = document.addPage(PageSizes.A4); //[595.28, 841.89]
 
-  page.drawText("Sample Invoice", { x: 50, y: 800, size: 50 });
+  page.drawText("Sample Invoice", { x: 50, y: 750, size: 25 });
   page.drawText(new Date(date).toLocaleDateString(), {
-    x: 500,
-    y: 800,
+    x: 400,
+    y: 750,
     size: 25,
   });
 
@@ -46,8 +46,10 @@ async function createPdf({ id, date, name, items, total }) {
   page.drawText(`Order ID: ${id}`, {
     x: 50,
     y: 650,
-    size: 25,
+    size: 10,
   });
+
+  page.drawText(`Total: $${total}`, { x: 50, y: 500, size: 10 });
 
   const orderList = items
     .map(
@@ -56,8 +58,7 @@ async function createPdf({ id, date, name, items, total }) {
     )
     .join("\n");
 
-  page.drawText(orderList, { x: 50, y: 450, size: 25 });
-  page.drawText(`Total: $${total}`, { x: 50, y: 400, size: 25 });
+  page.drawText(orderList, { x: 50, y: 450, size: 10 });
 
   const pdfBytes = await document.save();
 
