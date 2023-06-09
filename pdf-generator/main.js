@@ -37,7 +37,7 @@ async function createPdf({ id, date, name, items, total }) {
     size: 15,
   });
 
-  page.drawText(`Hello ${name}!`, {
+  page.drawText(`Hello, ${name}!`, {
     x: 50,
     y: 700,
     size: 30,
