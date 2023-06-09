@@ -28,6 +28,5 @@ module.exports = async ({ req, res, log, error }) => {
 
   const pdfBytes = await createPdf(req.body);
 
-  res.header("content-type", "application/pdf");
-  return res.send(pdfBytes);
+  return res.send(pdfBytes, 200, { "Content-Type": "application/pdf" });
 };
