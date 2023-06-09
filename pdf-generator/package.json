@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@faker-js/faker": "^8.0.2",
     "pdf-lib": "^1.17.1"
   }
 }
