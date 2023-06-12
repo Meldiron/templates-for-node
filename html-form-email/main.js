@@ -2,7 +2,7 @@ const querystring = require("node:querystring");
 const nodemailer = require("nodemailer");
 
 module.exports = async ({ req, res, log, error }) => {
-  log("Hello, World! 👋");
+  log("Validating request...");
 
   if (req.method !== "post") {
     res.json(
@@ -24,13 +24,27 @@ module.exports = async ({ req, res, log, error }) => {
     );
   }
 
+  log("Request looks good! 🎉");
+
+  log("Parsing form data...");
+  const { name, email, message } = querystring.parse(req.body);
+  if (!name || !email || !message) {
+    return res.json(
+      {
+        ok: false,
+        msg: "Missing form fields",
+      },
+      400
+    );
+  }
+  log("Form data is valid! 🎉");
+
   const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD) {
     error("Missing SMTP credentials.");
     return res.json(
       {
         ok: false,
-        msg: "Internal server error",
       },
       500
     );
@@ -42,20 +56,8 @@ module.exports = async ({ req, res, log, error }) => {
     return res.json(
       {
         ok: false,
-        msg: "Internal server error",
       },
       500
-    );
-  }
-
-  const { name, email, message } = querystring.parse(req.body);
-  if (!name || !email || !message) {
-    return res.json(
-      {
-        ok: false,
-        msg: "Missing required fields",
-      },
-      400
     );
   }
 
@@ -68,16 +70,25 @@ module.exports = async ({ req, res, log, error }) => {
     },
   });
 
-  const body = `Name: ${name}
+  const text = `Name: ${name}
 Email: ${email}
 Message: ${message}`;
 
-  await transporter.sendMail({
-    from: `"${name}" <${email}>`,
-    to: INBOUND_EMAIL,
-    subject: "Form submission",
-    body,
-  });
+  log("Sending email...");
+  try {
+    await transporter.sendMail({
+      from: `"${name}" <${email}>`,
+      to: INBOUND_EMAIL,
+      subject: "Form submission",
+      text,
+    });
+  } catch (error) {
+    error("Error sending email:", error);
+    return res.json({
+      ok: false,
+    });
+  }
+  log("Email sent! 📧");
 
   return res.json({
     ok: true,
