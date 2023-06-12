@@ -6,3 +6,4 @@ This repository contains node Appwrite function templates.
 
 - [Hello, World](hello-world/) - A simple 'Hello, World' function.
 - [PDF Generator](pdf-generator/) - A function that uses the [PDF-LIB](https://pdf-lib.js.org/) library to generate a sample invoice.
+- [HTML Form Email](html-form-email/) - A function that sends an email with the contents of an HTML form.
