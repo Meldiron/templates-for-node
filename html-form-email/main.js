@@ -1,4 +1,4 @@
-const querystring = require("querystring");
+const querystring = require("node:querystring");
 const nodemailer = require("nodemailer");
 
 module.exports = async ({ req, res, error }) => {
@@ -88,7 +88,3 @@ Message: ${message}
     msg: `Success! Your message has been delivered.`,
   });
 };
-
-function emailTemplate({ name, email, message }) {
-  return;
-}
