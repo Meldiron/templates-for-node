@@ -70,7 +70,8 @@ module.exports = async ({ req, res, log, error }) => {
     },
   });
 
-  const text = `Name: ${name}
+  const text = `You've received a new message!\n
+Name: ${name}
 Email: ${email}
 Message: ${message}`;
 
@@ -79,7 +80,7 @@ Message: ${message}`;
     await transporter.sendMail({
       from: `"${name}" <${email}>`,
       to: INBOUND_EMAIL,
-      subject: "Form submission",
+      subject: `Form submission from ${name}`,
       text,
     });
   } catch (error) {
