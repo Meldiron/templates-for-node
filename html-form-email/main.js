@@ -1,3 +1,5 @@
+const querystring = require("querystring");
+
 module.exports = async ({ req, res }) => {
   console.log("Hello, World! 👋");
 
@@ -23,7 +25,7 @@ module.exports = async ({ req, res }) => {
 
   return res.json({
     query: req.query,
-    body: req.body,
+    body: querystring.parse(req.body),
     headers: req.headers,
   });
 };
