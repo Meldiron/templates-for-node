@@ -1,8 +1,8 @@
 const querystring = require("node:querystring");
-//const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 
-module.exports = async ({ req, res, error }) => {
-  console.log("Hello, World! 👋");
+module.exports = async ({ req, res, log, error }) => {
+  log("Hello, World! 👋");
 
   if (req.method !== "post") {
     res.json(
@@ -24,10 +24,7 @@ module.exports = async ({ req, res, error }) => {
     );
   }
 
-  const SMTP_URL = process.env.SMTP_URL;
-  const SMTP_PORT = process.env.SMTP_PORT;
-  const SMTP_USERNAME = process.env.SMTP_USERNAME;
-  const SMTP_PASSWORD = process.env.SMTP_PASSWORD;
+  const { SMTP_URL, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
   if (!SMTP_URL || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD) {
     error("Missing SMTP credentials.");
     return res.json(
@@ -39,7 +36,7 @@ module.exports = async ({ req, res, error }) => {
     );
   }
 
-  const INBOUND_EMAIL = process.env.INBOUND_EMAIL;
+  const { INBOUND_EMAIL } = process.env;
   if (!INBOUND_EMAIL) {
     error("Missing INBOUND_EMAIL.");
     return res.json(
@@ -73,8 +70,7 @@ module.exports = async ({ req, res, error }) => {
 
   const body = `Name: ${name}
 Email: ${email}
-Message: ${message}
-    `;
+Message: ${message}`;
 
   await transporter.sendMail({
     from: `"${name}" <${email}>`,
