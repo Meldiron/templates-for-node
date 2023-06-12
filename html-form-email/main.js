@@ -1,10 +1,10 @@
-const querystring = require("node:querystring");
-const nodemailer = require("nodemailer");
+// const querystring = require("node:querystring");
+// const nodemailer = require("nodemailer");
 
 module.exports = async ({ req, res, error }) => {
   console.log("Hello, World! 👋");
 
-  if (req.method !== "post") {
+  /* if (req.method !== "post") {
     res.json(
       {
         ok: false,
@@ -81,8 +81,7 @@ Message: ${message}
     to: INBOUND_EMAIL,
     subject: "Form submission",
     body,
-  });
-
+  }); */
   return res.json({
     ok: true,
     msg: `Success! Your message has been delivered.`,
