@@ -1,5 +1,5 @@
 const querystring = require("node:querystring");
-const nodemailer = require("nodemailer");
+//const nodemailer = require("nodemailer");
 
 module.exports = async ({ req, res, error }) => {
   console.log("Hello, World! 👋");
