@@ -2,10 +2,14 @@ const { PDFDocument, PageSizes } = require("pdf-lib");
 const { faker } = require("@faker-js/faker");
 
 module.exports = async ({ res, log }) => {
-  log("Functions are cool! 🎉");
-
+  log("Generating fake order...");
   const fakeOrder = generateFakeOrder();
+  log("Fake order:", JSON.stringify(fakeOrder, null, 2));
+
+  log("Creating PDF...");
   const pdfBuffer = await createPdf(fakeOrder);
+  log("PDF created!");
+
   return res.send(pdfBuffer, 200, { "Content-Type": "application/pdf" });
 };
 
