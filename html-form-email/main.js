@@ -24,8 +24,8 @@ module.exports = async ({ req, res, log, error }) => {
     );
   }
 
-  const { SMTP_URL, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
-  if (!SMTP_URL || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD) {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD) {
     error("Missing SMTP credentials.");
     return res.json(
       {
@@ -60,7 +60,7 @@ module.exports = async ({ req, res, log, error }) => {
   }
 
   const transporter = nodemailer.createTransport({
-    host: SMTP_URL,
+    host: SMTP_HOST,
     port: SMTP_PORT,
     auth: {
       user: SMTP_USERNAME,
