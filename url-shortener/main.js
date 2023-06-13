@@ -84,12 +84,12 @@ function validateEnvironment() {
   const missing = REQUIRED_VARIABLES.filter(
     (variable) => !process.env[variable]
   );
-  let warnings = [];
 
+  let warnings = [];
   try {
     new URL(process.env.SHORT_DOMAIN);
   } catch (err) {
-    missing.push("SHORT_DOMAIN is not a valid URL.");
+    warnings.push("SHORT_DOMAIN is not a valid URL.");
   }
 
   return {
