@@ -6,6 +6,7 @@ declare global {
       STMP_USERNAME?: string;
       STMP_PASSWORD?: string;
       SUBMIT_EMAIL?: string;
+      ALLOWED_ORIGINS?: string;
     }
   }
 }

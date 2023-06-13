@@ -3,103 +3,125 @@ const nodemailer = require("nodemailer");
 
 const ErrorCode = {
   INVALID_REQUEST: "invalid-request",
-  MISSING_FORM_DATA: "missing-form-data",
+  MISSING_FORM_FIELDS: "missing-form-fields",
   SERVER_ERROR: "server-error",
 };
 
+const REQUIRED_VARIABLES = [
+  "SUBMIT_EMAIL",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USERNAME",
+  "SMTP_PASSWORD",
+];
+
 module.exports = async ({ req, res, log, error }) => {
-  const referer = req.headers["referer"];
+  const variables = validateEnvironment();
+  if (variables.missing.length > 0) {
+    error(
+      `Missing required environment variables: ${variables.missing.join(", ")}`
+    );
+    throw new Error("Missing required environment variables.");
+  }
+  variables.warnings.forEach((warning) => log(`WARNING: ${warning}`));
 
-  if (!referer) throw new Error("Missing referer header");
-
-  // Validation of the request
-  log("Validating request...");
-  if (
-    req.method !== "post" ||
-    req.headers["content-type"] !== "application/x-www-form-urlencoded"
-  ) {
+  const { isValid, referer, origin } = isRequestValid(req);
+  if (!isValid) {
+    log("Invalid request.");
     return res.redirect({
-      url: buildErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
+      url: constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
     });
   }
 
-  log("Request is valid!");
-
-  // Parsing form data
-  log("Parsing form data...");
-  const { name, email, message, _next } = querystring.parse(req.body);
-
-  if (!name || !email || !message || !_next) {
+  if (!isOriginPermitted(origin)) {
+    error("Origin not permitted.");
     return res.redirect({
-      url: buildErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_DATA),
+      url: constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
+    });
+  }
+  res.setHeader("Access-Control-Allow-Origin", origin);
+
+  const form = querystring.parse(req.body);
+  if (!hasFormFields(form)) {
+    log("Missing form data.");
+    return res.redirect({
+      url: constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS),
     });
   }
 
-  const origin = req.headers["origin"];
-  if (!origin) {
-    error("Missing origin header.");
-    return res.redirect({
-      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
-    });
-  }
-
-  const successRedirectUrl = new URL(_next, origin);
-  log("Form data is valid!");
-
-  // SMTP configuration from environment variables
-  log("Getting SMTP configuration...");
-  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SUBMIT_EMAIL } =
-    process.env;
-
-  if (
-    !SMTP_HOST ||
-    !SMTP_PORT ||
-    !SMTP_USERNAME ||
-    !SMTP_PASSWORD ||
-    !SUBMIT_EMAIL
-  ) {
-    error("Missing SMTP configuration.");
-    return res.redirect({
-      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
-    });
-  }
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
-  });
-
-  log("SMTP configuration is valid!");
-
+  const transport = createEmailTransport();
   try {
-    await transporter.sendMail({
-      from: `"${name}" <${email}>`,
-      to: SUBMIT_EMAIL,
-      subject: `Form submission from ${name}`,
-      text: emailTemplate({ name, email, message }),
+    await transport.sendMail({
+      from: form.email,
+      to: process.env.SUBMIT_EMAIL,
+      subject: `Form submission from ${form.email}`,
+      text: formatEmailMessage(form),
     });
-  } catch (error) {
-    error("Error sending email:", error);
+  } catch (e) {
+    error("Error sending email:", e);
     return res.redirect({
-      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
+      url: constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
     });
   }
 
   log("Email sent successfully!");
-
-  // Redirecting the user to the success page.
-  return res.redirect({ url: successRedirectUrl.toString() });
+  return res.redirect({ url: new URL(form._next, origin).toString() });
 };
 
-function emailTemplate({ name, email, message }) {
-  return `You've received a new message!\n
-Name: ${name}
-Email: ${email}
-Message: ${message}`;
+function validateEnvironment() {
+  const missing = REQUIRED_VARIABLES.filter(
+    (variable) => !process.env[variable]
+  );
+
+  let warnings = [];
+  if (!process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS === "*") {
+    warnings.push("No ALLOWED_ORIGINS set. This is a security risk!");
+  }
+
+  return {
+    missing,
+    warnings,
+  };
 }
 
-function buildErrorRedirectUrl(referer, errorCode) {
+function isRequestValid(req) {
+  const referer = req.headers["referer"];
+  const origin = req.headers["origin"];
+  const isFormRequest =
+    req.method === "post" &&
+    req.headers["content-type"] === "application/x-www-form-urlencoded";
+  return { isValid: referer && origin && isFormRequest, referer, origin };
+}
+
+function isOriginPermitted(origin) {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS;
+  if (!allowedOrigins || allowedOrigins === "*") return true;
+  const allowedOriginsArray = allowedOrigins.split(",");
+  return allowedOriginsArray.includes(origin);
+}
+
+function hasFormFields(form) {
+  return !!(form.email && form.message && form._next);
+}
+
+function createEmailTransport() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
+  });
+}
+
+function formatEmailMessage(form) {
+  const form = form.filter((key) => key !== "_next");
+  return `You've received a new message!\n
+${Object.entries(form)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join("\n")}`;
+}
+
+function constructErrorRedirectUrl(referer, errorCode) {
   const url = new URL(referer);
   url.searchParams.set("code", errorCode);
   return url.toString();
