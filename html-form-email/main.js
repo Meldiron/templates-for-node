@@ -28,25 +28,25 @@ module.exports = async ({ req, res, log, error }) => {
   const { isValid, referer, origin } = isRequestValid(req);
   if (!isValid) {
     log("Invalid request.");
-    return res.redirect({
-      url: constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
-    });
+    return res.redirect(
+      constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
+    );
   }
 
   if (!isOriginPermitted(origin)) {
     error("Origin not permitted.");
-    return res.redirect({
-      url: constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
-    });
+    return res.redirect(
+      constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
+    );
   }
   res.setHeader("Access-Control-Allow-Origin", origin);
 
   const form = querystring.parse(req.body);
   if (!hasFormFields(form)) {
     log("Missing form data.");
-    return res.redirect({
-      url: constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS),
-    });
+    return res.redirect(
+      constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS)
+    );
   }
 
   const transport = createEmailTransport();
@@ -59,13 +59,13 @@ module.exports = async ({ req, res, log, error }) => {
     });
   } catch (e) {
     error("Error sending email:", e);
-    return res.redirect({
-      url: constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
-    });
+    return res.redirect(
+      constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR)
+    );
   }
-
   log("Email sent successfully!");
-  return res.redirect({ url: new URL(form._next, origin).toString() });
+
+  return res.redirect(new URL(form._next, origin).toString());
 };
 
 function validateEnvironment() {
