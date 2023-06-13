@@ -15,6 +15,7 @@ const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
 const COLLECTION_NAME = "URLs";
 
 module.exports = async ({ res, req, log, error }) => {
+  log("Checking environment variables...");
   const variables = validateEnvironment();
   if (variables.missing.length > 0) {
     error(
@@ -23,6 +24,7 @@ module.exports = async ({ res, req, log, error }) => {
     throw new Error("Missing required environment variables.");
   }
 
+  log("Setting up Appwrite client...");
   const client = new sdk.Client();
   const databases = new sdk.Databases(client);
   client

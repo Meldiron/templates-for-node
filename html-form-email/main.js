@@ -32,6 +32,7 @@ module.exports = async ({ req, res, log, error }) => {
       constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
     );
   }
+  log("Request is valid.");
 
   if (!isOriginPermitted(origin)) {
     error("Origin not permitted.");
@@ -39,6 +40,7 @@ module.exports = async ({ req, res, log, error }) => {
       constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
     );
   }
+  log("Origin is permitted.");
 
   const responseHeaders = {
     "Access-Control-Allow-Origin": origin,
@@ -53,6 +55,7 @@ module.exports = async ({ req, res, log, error }) => {
       responseHeaders
     );
   }
+  log("Form data is valid.");
 
   const transport = createEmailTransport();
   try {
@@ -62,8 +65,8 @@ module.exports = async ({ req, res, log, error }) => {
       subject: `Form submission from ${form.email}`,
       text: formatEmailMessage(form),
     });
-  } catch (e) {
-    error("Error sending email: ", JSON.stringify(e, null, 2));
+  } catch (error) {
+    error(`Error sending email: ${JSON.stringify(error, null, 2)}`);
     return res.redirect(
       constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
       301,
