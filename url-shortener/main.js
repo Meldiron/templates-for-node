@@ -15,6 +15,8 @@ const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
 const COLLECTION_NAME = "URLs";
 
 module.exports = async ({ res, req, log, error }) => {
+  log("Function started.");
+
   const variables = validateEnvironment();
   if (variables.missing.length > 0) {
     error(
@@ -37,9 +39,9 @@ module.exports = async ({ res, req, log, error }) => {
   log("content-type: " + req.headers["content-type"]);
   log("method: " + req.method);
 
-  if (isFormRequest(req)) {
-    const { url } = querystring.parse(req.body);
-    if (!url) {
+  if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
+    const body = querystring.parse(req.body);
+    if (!body || !body.url) {
       error("Missing required parameter: url");
       throw new Error("Missing required parameter: url");
     }
@@ -50,7 +52,7 @@ module.exports = async ({ res, req, log, error }) => {
       COLLECTION_ID,
       nanoid(6),
       {
-        original: url,
+        original: body.url,
       }
     );
 
@@ -85,13 +87,6 @@ function validateEnvironment() {
   return {
     missing,
   };
-}
-
-function isFormRequest(req) {
-  return (
-    req.headers["content-type"] === "application/x-www-form-urlencoded" &&
-    !!req.body
-  );
 }
 
 async function setupDatabase(databases) {
