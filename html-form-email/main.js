@@ -63,7 +63,7 @@ module.exports = async ({ req, res, log, error }) => {
       text: formatEmailMessage(form),
     });
   } catch (e) {
-    error("Error sending email:", e);
+    error("Error sending email: ", JSON.stringify(e, null, 2));
     return res.redirect(
       constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
       301,
