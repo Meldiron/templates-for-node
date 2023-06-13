@@ -21,13 +21,15 @@ module.exports = async ({ res, req, log, error }) => {
   }
 
   const client = new sdk.Client();
-  const databases = new sdk.Databases(client);
+  const databases = new sdk.Database(client);
   client
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
     .setKey(process.env.APPWRITE_API_KEY);
 
-  await setupDatabase(databases);
+  log(`Setting up database ${DATABASE_ID}...`);
+  const created = await setupDatabase(databases);
+  log(`Database ${created ? "created" : "already exists"}.`);
 
   return res.json({
     path: req.path,
@@ -64,8 +66,10 @@ async function setupDatabase(databases) {
       databases.createUrlAttribute(DATABASE_ID, COLLECTION_ID, "short", true),
     ]);
   } catch (error) {
-    if (error.code !== 409) {
-      throw error;
-    }
+    // If database already exists, we can ignore the error
+    if (error.code !== 409) throw error;
+    return false;
   }
+
+  return true;
 }
