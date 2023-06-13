@@ -46,7 +46,8 @@ module.exports = async ({ res, req, log, error }) => {
       throw new Error("Missing required parameter: url");
     }
 
-    log(`Creating document in collection ${COLLECTION_ID}...`);
+    log(body.url);
+
     const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_ID,
