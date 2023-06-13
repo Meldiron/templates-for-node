@@ -1,4 +1,4 @@
-const { nanoid } = require("nanoid");
+const { customAlphabet } = require("nanoid");
 const sdk = require("node-appwrite");
 const querystring = require("node:querystring");
 
@@ -14,9 +14,12 @@ const DATABASE_NAME = "URL Shortener";
 const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
 const COLLECTION_NAME = "URLs";
 
-module.exports = async ({ res, req, log, error }) => {
-  log("Function started.");
+const nanoid = customAlphabet(
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  6
+);
 
+module.exports = async ({ res, req, log, error }) => {
   const variables = validateEnvironment();
   if (variables.missing.length > 0) {
     error(
@@ -24,6 +27,7 @@ module.exports = async ({ res, req, log, error }) => {
     );
     throw new Error("Missing required environment variables.");
   }
+  variables.warnings.forEach((warning) => log(`WARNING: ${warning}`));
 
   const client = new sdk.Client();
   const databases = new sdk.Databases(client);
@@ -36,9 +40,6 @@ module.exports = async ({ res, req, log, error }) => {
   const created = await setupDatabase(databases);
   log(`Database ${created ? "created" : "already exists"}.`);
 
-  log("content-type: " + req.headers["content-type"]);
-  log("method: " + req.method);
-
   if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
     const body = querystring.parse(req.body);
     if (!body || !body.url) {
@@ -46,19 +47,14 @@ module.exports = async ({ res, req, log, error }) => {
       throw new Error("Missing required parameter: url");
     }
 
-    log(body.url);
-
     const document = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_ID,
-      nanoid(6),
+      nanoid(),
       {
         original: body.url,
       }
     );
-
-    log(`Created document with ID: ${document.$id}`);
-    log(`Shortdomain: ${process.env.SHORT_DOMAIN}`);
 
     return res.send(
       `Link created: ${new URL(
@@ -88,8 +84,17 @@ function validateEnvironment() {
   const missing = REQUIRED_VARIABLES.filter(
     (variable) => !process.env[variable]
   );
+  let warnings = [];
+
+  try {
+    new URL(process.env.SHORT_DOMAIN);
+  } catch (err) {
+    missing.push("SHORT_DOMAIN is not a valid URL.");
+  }
+
   return {
     missing,
+    warnings,
   };
 }
 
