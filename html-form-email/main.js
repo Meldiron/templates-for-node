@@ -114,9 +114,8 @@ function createEmailTransport() {
 }
 
 function formatEmailMessage(form) {
-  const form = form.filter((key) => key !== "_next");
   return `You've received a new message!\n
-${Object.entries(form)
+${Object.entries(form.filter((key) => key !== "_next"))
   .map(([key, value]) => `${key}: ${value}`)
   .join("\n")}`;
 }
