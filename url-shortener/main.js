@@ -21,6 +21,7 @@ module.exports = async ({ res, req, log, error }) => {
   }
 
   const client = new sdk.Client();
+  const databases = new sdk.Database(client);
   client
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
