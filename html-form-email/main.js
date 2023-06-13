@@ -39,13 +39,18 @@ module.exports = async ({ req, res, log, error }) => {
       constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
     );
   }
-  res.headers["access-control-allow-origin"] = origin;
+
+  const responseHeaders = {
+    "Access-Control-Allow-Origin": origin,
+  };
 
   const form = querystring.parse(req.body);
   if (!hasFormFields(form)) {
     log("Missing form data.");
     return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS)
+      constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS),
+      301,
+      responseHeaders
     );
   }
 
@@ -60,12 +65,18 @@ module.exports = async ({ req, res, log, error }) => {
   } catch (e) {
     error("Error sending email:", e);
     return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR)
+      constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
+      301,
+      responseHeaders
     );
   }
   log("Email sent successfully!");
 
-  return res.redirect(new URL(form._next, origin).toString());
+  return res.redirect(
+    new URL(form._next, origin).toString(),
+    301,
+    responseHeaders
+  );
 };
 
 function validateEnvironment() {
