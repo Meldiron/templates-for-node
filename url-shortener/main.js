@@ -71,7 +71,7 @@ module.exports = async ({ res, req, log, error }) => {
       shortId
     );
 
-    return res.redirect(302, document.original);
+    return res.redirect(document.original, 302);
   } catch (error) {
     if (error.code !== 404) throw error;
     return res.send(`404: Not found.`);
