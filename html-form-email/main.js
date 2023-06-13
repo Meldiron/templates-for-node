@@ -88,7 +88,6 @@ function isRequestValid(req) {
   const referer = req.headers["referer"];
   const origin = req.headers["origin"];
   const isFormRequest =
-    req.method === "post" &&
     req.headers["content-type"] === "application/x-www-form-urlencoded";
   return { isValid: referer && origin && isFormRequest, referer, origin };
 }

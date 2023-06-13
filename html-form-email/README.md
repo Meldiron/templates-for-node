@@ -8,10 +8,10 @@ This function facilitates email submission from HTML forms using Appwrite. It va
 
 ### HTML Form
 
-To use this function, set the `action` attribute of your HTML form to your function URL, and the `method` attribute to `post`.
+To use this function, set the `action` attribute of your HTML form to your function URL, and include a hidden input with the name `_next` and the path of the redirect to on successful form submission (e.g. `/success`).
 
 ```html
-<form action="{{YOUR_FUNCTION_URL}}" method="post">
+<form action="{{YOUR_FUNCTION_URL}}">
   <input type="email" name="email" placeholder="Email" required />
   <textarea name="message" placeholder="Your Message" required></textarea>
   <input type="hidden" name="_next" value="{{YOUR_SUCCESS_PATH}}" />
