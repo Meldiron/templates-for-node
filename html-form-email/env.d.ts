@@ -5,7 +5,7 @@ declare global {
       STMP_PORT?: string;
       STMP_USERNAME?: string;
       STMP_PASSWORD?: string;
-      INBOUND_EMAIL?: string;
+      SUBMIT_EMAIL?: string;
     }
   }
 }

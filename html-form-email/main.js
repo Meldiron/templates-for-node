@@ -1,98 +1,106 @@
 const querystring = require("node:querystring");
 const nodemailer = require("nodemailer");
 
+const ErrorCode = {
+  INVALID_REQUEST: "invalid-request",
+  MISSING_FORM_DATA: "missing-form-data",
+  SERVER_ERROR: "server-error",
+};
+
 module.exports = async ({ req, res, log, error }) => {
+  const referer = req.headers["referer"];
+
+  if (!referer) throw new Error("Missing referer header");
+
+  // Validation of the request
   log("Validating request...");
-
-  if (req.method !== "post") {
-    res.json(
-      {
-        ok: false,
-        msg: "Only POST requests are allowed",
-      },
-      400
-    );
+  if (
+    req.method !== "post" ||
+    req.headers["content-type"] !== "application/x-www-form-urlencoded"
+  ) {
+    return res.redirect({
+      url: buildErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST),
+    });
   }
 
-  if (req.headers["content-type"] !== "application/x-www-form-urlencoded") {
-    return res.json(
-      {
-        ok: false,
-        msg: "Only application/x-www-form-urlencoded requests are allowed",
-      },
-      400
-    );
-  }
+  log("Request is valid!");
 
-  log("Request looks good! 🎉");
-
+  // Parsing form data
   log("Parsing form data...");
-  const { name, email, message } = querystring.parse(req.body);
-  if (!name || !email || !message) {
-    return res.json(
-      {
-        ok: false,
-        msg: "Missing form fields",
-      },
-      400
-    );
-  }
-  log("Form data is valid! 🎉");
+  const { name, email, message, _next } = querystring.parse(req.body);
 
-  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD) {
-    error("Missing SMTP credentials.");
-    return res.json(
-      {
-        ok: false,
-      },
-      500
-    );
+  if (!name || !email || !message || !_next) {
+    return res.redirect({
+      url: buildErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_DATA),
+    });
   }
 
-  const { INBOUND_EMAIL } = process.env;
-  if (!INBOUND_EMAIL) {
-    error("Missing INBOUND_EMAIL.");
-    return res.json(
-      {
-        ok: false,
-      },
-      500
-    );
+  const origin = req.headers["origin"];
+  if (!origin) {
+    error("Missing origin header.");
+    return res.redirect({
+      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
+    });
+  }
+
+  const successRedirectUrl = new URL(_next, origin);
+  log("Form data is valid!");
+
+  // SMTP configuration from environment variables
+  log("Getting SMTP configuration...");
+  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SUBMIT_EMAIL } =
+    process.env;
+
+  if (
+    !SMTP_HOST ||
+    !SMTP_PORT ||
+    !SMTP_USERNAME ||
+    !SMTP_PASSWORD ||
+    !SUBMIT_EMAIL
+  ) {
+    error("Missing SMTP configuration.");
+    return res.redirect({
+      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
+    });
   }
 
   const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
-    auth: {
-      user: SMTP_USERNAME,
-      pass: SMTP_PASSWORD,
-    },
+    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
   });
 
-  const text = `You've received a new message!\n
-Name: ${name}
-Email: ${email}
-Message: ${message}`;
+  log("SMTP configuration is valid!");
 
-  log("Sending email...");
   try {
     await transporter.sendMail({
       from: `"${name}" <${email}>`,
-      to: INBOUND_EMAIL,
+      to: SUBMIT_EMAIL,
       subject: `Form submission from ${name}`,
-      text,
+      text: emailTemplate({ name, email, message }),
     });
   } catch (error) {
     error("Error sending email:", error);
-    return res.json({
-      ok: false,
+    return res.redirect({
+      url: buildErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
     });
   }
-  log("Email sent! 📧");
 
-  return res.json({
-    ok: true,
-    msg: `Success! Your message has been delivered.`,
-  });
+  log("Email sent successfully!");
+
+  // Redirecting the user to the success page.
+  return res.redirect({ url: successRedirectUrl.toString() });
 };
+
+function emailTemplate({ name, email, message }) {
+  return `You've received a new message!\n
+Name: ${name}
+Email: ${email}
+Message: ${message}`;
+}
+
+function buildErrorRedirectUrl(referer, errorCode) {
+  const url = new URL(referer);
+  url.searchParams.set("code", errorCode);
+  return url.toString();
+}
