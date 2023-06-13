@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "appwrite": "^11.0.0",
+    "nanoid": "^3.3.6",
     "node-appwrite": "^9.0.0"
   }
 }
