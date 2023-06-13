@@ -15,7 +15,6 @@ const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
 const COLLECTION_NAME = "URLs";
 
 module.exports = async ({ res, req, log, error }) => {
-  log("Checking environment variables...");
   const variables = validateEnvironment();
   if (variables.missing.length > 0) {
     error(
@@ -24,15 +23,14 @@ module.exports = async ({ res, req, log, error }) => {
     throw new Error("Missing required environment variables.");
   }
 
-  log("Setting up Appwrite client...");
   const client = new sdk.Client();
   const databases = new sdk.Databases(client);
   client
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
     .setKey(process.env.APPWRITE_API_KEY);
+  log("Appwrite client initialized.");
 
-  log(`Setting up database ${DATABASE_ID}...`);
   const created = await setupDatabase(databases);
   log(`Database ${created ? "created" : "already exists"}.`);
 
@@ -92,7 +90,7 @@ function validateEnvironment() {
 function isFormRequest(req) {
   return (
     req.headers["content-type"] === "application/x-www-form-urlencoded" &&
-    req.method === "post"
+    !!req.body
   );
 }
 
