@@ -39,7 +39,7 @@ module.exports = async ({ req, res, log, error }) => {
       constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
     );
   }
-  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.headers["access-control-allow-origin"] = origin;
 
   const form = querystring.parse(req.body);
   if (!hasFormFields(form)) {
