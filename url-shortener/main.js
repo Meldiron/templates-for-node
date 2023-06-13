@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const { default: sdk, Unique } = require("node-appwrite");
+const sdk = require("node-appwrite");
 const querystring = require("node:querystring");
 
 const REQUIRED_VARIABLES = [
