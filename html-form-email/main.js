@@ -58,13 +58,15 @@ module.exports = async ({ req, res, log, error }) => {
   log("Form data is valid.");
 
   const transport = createEmailTransport();
+  const mailOptions = {
+    from: form.email,
+    to: process.env.SUBMIT_EMAIL,
+    subject: `Form submission from ${form.email}`,
+    text: formatEmailMessage(form),
+  };
+
   try {
-    await transport.sendMail({
-      from: form.email,
-      to: process.env.SUBMIT_EMAIL,
-      subject: `Form submission from ${form.email}`,
-      text: formatEmailMessage(form),
-    });
+    await transport.sendMail(mailOptions);
   } catch (err) {
     error(`Error sending email: ${JSON.stringify(err, null, 2)}`);
     return res.redirect(
@@ -128,7 +130,8 @@ function createEmailTransport() {
 
 function formatEmailMessage(form) {
   return `You've received a new message!\n
-${Object.entries(form.filter((key) => key !== "_next"))
+${Object.entries(form)
+  .filter(([key]) => key !== "_next")
   .map(([key, value]) => `${key}: ${value}`)
   .join("\n")}`;
 }
