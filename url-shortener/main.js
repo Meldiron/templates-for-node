@@ -57,6 +57,9 @@ module.exports = async ({ res, req, log, error }) => {
       }
     );
 
+    log(`Created document with ID: ${document.$id}`);
+    log(`Shortdomain: ${process.env.SHORT_DOMAIN}`);
+
     return res.send(
       `Link created: ${new URL(
         document.$id,
