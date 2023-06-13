@@ -2,7 +2,7 @@
 
 ## Overview
 
-This function facilitates email submission from HTML forms using Appwrite. It validates form data, sends the email through an SMTP server, and handles redirection based on the success or failure of the submission.
+This function facilitates email submission from HTML forms using Appwrite. It validates form data, sends an email through an SMTP server, and handles redirection of the user based on the success or failure of the submission.
 
 ## Usage
 
