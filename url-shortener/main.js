@@ -34,6 +34,9 @@ module.exports = async ({ res, req, log, error }) => {
   const created = await setupDatabase(databases);
   log(`Database ${created ? "created" : "already exists"}.`);
 
+  log("content-type: " + req.headers["content-type"]);
+  log("method: " + req.method);
+
   if (isFormRequest(req)) {
     const { url } = querystring.parse(req.body);
     if (!url) {
@@ -59,9 +62,8 @@ module.exports = async ({ res, req, log, error }) => {
     );
   }
 
-  // Remove leading and trailing slashes
   const shortId = req.path.replace(/^\/|\/$/g, "");
-
+  log(`Fetching document from with ID: ${shortId}`);
   try {
     const document = await databases.getDocument(
       DATABASE_ID,
