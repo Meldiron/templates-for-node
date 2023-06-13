@@ -65,8 +65,8 @@ module.exports = async ({ req, res, log, error }) => {
       subject: `Form submission from ${form.email}`,
       text: formatEmailMessage(form),
     });
-  } catch (error) {
-    error(`Error sending email: ${JSON.stringify(error, null, 2)}`);
+  } catch (err) {
+    error(`Error sending email: ${JSON.stringify(err, null, 2)}`);
     return res.redirect(
       constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
       301,
