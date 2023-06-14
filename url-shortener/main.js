@@ -1,6 +1,5 @@
 const { customAlphabet } = require("nanoid");
-const sdk = require("node-appwrite");
-const querystring = require("node:querystring");
+const { Client, Databases } = require("node-appwrite");
 
 const REQUIRED_VARIABLES = [
   "APPWRITE_API_KEY",
@@ -29,8 +28,8 @@ module.exports = async ({ res, req, log, error }) => {
   }
   variables.warnings.forEach((warning) => log(`WARNING: ${warning}`));
 
-  const client = new sdk.Client();
-  const databases = new sdk.Databases(client);
+  const client = new Client();
+  const databases = new Databases(client);
   client
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
