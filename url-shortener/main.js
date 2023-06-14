@@ -37,8 +37,15 @@ module.exports = async ({ res, req, log, error }) => {
     .setKey(process.env.APPWRITE_API_KEY);
   log("Appwrite client initialized.");
 
-  const created = await setupDatabase(databases);
-  log(`Database ${created ? "created" : "already exists"}.`);
+  try {
+    await databases.get(DATABASE_ID);
+    log(`Database exists.`);
+  } catch (err) {
+    // If the database does not exist, we can create it
+    if (err.code !== 404) throw error;
+    await setupDatabase(databases);
+    log(`Database created.`);
+  }
 
   if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
     const body = querystring.parse(req.body);
@@ -113,10 +120,7 @@ async function setupDatabase(databases) {
       true
     );
   } catch (error) {
-    // If database already exists, we can ignore the error
+    // If resource already exists, we can ignore the error
     if (error.code !== 409) throw error;
-    return false;
   }
-
-  return true;
 }
