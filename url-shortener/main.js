@@ -35,7 +35,6 @@ module.exports = async ({ res, req, log, error }) => {
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
     .setKey(process.env.APPWRITE_API_KEY);
-  log("Appwrite client initialized.");
 
   try {
     await databases.get(DATABASE_ID);
@@ -47,11 +46,21 @@ module.exports = async ({ res, req, log, error }) => {
     log(`Database created.`);
   }
 
-  if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-    const body = querystring.parse(req.body);
-    if (!body || !body.url) {
-      error("Missing required parameter: url");
-      throw new Error("Missing required parameter: url");
+  if (
+    req.method === "POST" &&
+    req.headers["content-type"] === "application/json"
+  ) {
+    const { url } = req.body;
+    if (!url) {
+      error("Missing url parameter.");
+      return res.json({ error: "Missing url parameter" }, 400);
+    }
+
+    try {
+      new URL(url);
+    } catch (err) {
+      error("Invalid url parameter.");
+      return res.json({ error: "Invalid url parameter" }, 400);
     }
 
     const document = await databases.createDocument(
@@ -63,11 +72,12 @@ module.exports = async ({ res, req, log, error }) => {
       }
     );
 
-    return res.send(
-      `Link created: ${new URL(
-        document.$id,
-        process.env.SHORT_DOMAIN
-      ).toString()}`
+    return res.json(
+      {
+        original: document.original,
+        short: `${process.env.SHORT_DOMAIN}/${document.$id}`,
+      },
+      201
     );
   }
 
@@ -79,7 +89,6 @@ module.exports = async ({ res, req, log, error }) => {
       COLLECTION_ID,
       shortId
     );
-
     return res.redirect(document.original, 302);
   } catch (error) {
     if (error.code !== 404) throw error;
