@@ -20,7 +20,7 @@ Additionally, the function has the following optional variables:
 
 If the specified database doesn't exist, the function will automatically create it. It will create a collection within the database and add a URL attribute to the collection.
 
-## API Endpoints 
+## Usage
 
 This function supports two types of requests:
 
