@@ -18,7 +18,7 @@ Additionally, the function has the following optional variables:
 
 ## Database Setup
 
-If the specified database doesn't exist, the function will automatically create it. It will create a collection within the database and add a URL attribute to the collection.
+After the installation step, jf the specified database doesn't exist, the setup script will automatically create it. It will also create a collection within the database, adding a URL attribute to the collection.
 
 ## Usage
 
