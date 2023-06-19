@@ -1,5 +1,5 @@
 {
-  "name": "url-shortener",
+  "name": "hello-world",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "nanoid": "^3.3.6",
-    "node-appwrite": "^9.0.0"
+    "node-appwrite": "^9.0.0",
+    "stripe": "^12.9.0"
   }
 }

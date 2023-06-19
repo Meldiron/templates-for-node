@@ -1,5 +1,6 @@
 const querystring = require("node:querystring");
 const nodemailer = require("nodemailer");
+const validate = require("./validate");
 
 const ErrorCode = {
   INVALID_REQUEST: "invalid-request",
@@ -7,23 +8,12 @@ const ErrorCode = {
   SERVER_ERROR: "server-error",
 };
 
-const REQUIRED_VARIABLES = [
-  "SUBMIT_EMAIL",
-  "SMTP_HOST",
-  "SMTP_PORT",
-  "SMTP_USERNAME",
-  "SMTP_PASSWORD",
-];
-
 module.exports = async ({ req, res, log, error }) => {
-  const variables = validateEnvironment();
-  if (variables.missing.length > 0) {
-    error(
-      `Missing required environment variables: ${variables.missing.join(", ")}`
-    );
-    throw new Error("Missing required environment variables.");
-  }
-  variables.warnings.forEach((warning) => log(`WARNING: ${warning}`));
+  const { missing, warnings } = validate();
+  missing.forEach((variable) =>
+    error(`Missing required environment variable: ${variable}`)
+  );
+  warnings.forEach((warning) => log(`WARNING: ${warning}`));
 
   const { isValid, referer, origin } = isRequestValid(req);
   if (!isValid) {
@@ -84,22 +74,6 @@ module.exports = async ({ req, res, log, error }) => {
   );
 };
 
-function validateEnvironment() {
-  const missing = REQUIRED_VARIABLES.filter(
-    (variable) => !process.env[variable]
-  );
-
-  let warnings = [];
-  if (!process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS === "*") {
-    warnings.push("No ALLOWED_ORIGINS set. This is a security risk!");
-  }
-
-  return {
-    missing,
-    warnings,
-  };
-}
-
 function isRequestValid(req) {
   const referer = req.headers["referer"];
   const origin = req.headers["origin"];
@@ -120,11 +94,10 @@ function hasFormFields(form) {
 }
 
 function createEmailTransport() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
   return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: { user: process.env.SMTP_USERNAME, pass: process.env.SMTP_PASSWORD },
   });
 }
 
