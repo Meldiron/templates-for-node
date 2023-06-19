@@ -62,4 +62,4 @@ async function setupDatabase(databases) {
   }
 }
 
-await setup();
+setup();

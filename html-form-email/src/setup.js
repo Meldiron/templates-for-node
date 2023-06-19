@@ -10,4 +10,4 @@ async function setup() {
   warnings.forEach((warning) => console.log(`WARNING: ${warning}`));
 }
 
-await setup();
+setup();

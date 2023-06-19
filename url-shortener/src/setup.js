@@ -56,4 +56,4 @@ async function setupDatabase(client) {
   }
 }
 
-await setup();
+setup();
