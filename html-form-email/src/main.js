@@ -65,7 +65,7 @@ module.exports = async ({ req, res, log, error }) => {
       responseHeaders
     );
   }
-  log("Email sent successfully!");
+  log("Email sent successfully.");
 
   return res.redirect(
     new URL(form._next, origin).toString(),
@@ -102,7 +102,7 @@ function createEmailTransport() {
 }
 
 function formatEmailMessage(form) {
-  return `You've received a new message!\n
+  return `You've received a new message.\n
 ${Object.entries(form)
   .filter(([key]) => key !== "_next")
   .map(([key, value]) => `${key}: ${value}`)
