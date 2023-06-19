@@ -61,6 +61,9 @@ module.exports = async ({ res, req, log, error }) => {
 };
 
 async function generateShortUrl(databases, originalUrl) {
+  const DATABASE_ID = process.env.DATABASE_ID ?? "url-shortener";
+  const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
+
   const document = await databases.createDocument(
     DATABASE_ID,
     COLLECTION_ID,
@@ -73,6 +76,9 @@ async function generateShortUrl(databases, originalUrl) {
 }
 
 async function getOriginalUrl(databases, shortId) {
+  const DATABASE_ID = process.env.DATABASE_ID ?? "url-shortener";
+  const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
+
   const document = await databases.getDocument(
     DATABASE_ID,
     COLLECTION_ID,
