@@ -42,7 +42,7 @@ module.exports = async ({ res, req, log, error }) => {
     const short = await generateShortUrl(databases, url);
     return res.json(
       {
-        original: body.url,
+        original: url,
         short,
       },
       201
