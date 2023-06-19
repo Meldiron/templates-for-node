@@ -2,7 +2,7 @@ const stripe = require("stripe");
 const { Client } = require("node-appwrite");
 
 const StripeEvent = {
-  CHECKOUT_SESSION_COMPLETED: "checkout.session.completed",
+  CUSTOMER_SUBSCRIPTION_CREATED: "customer.subscription.created",
   CUSTOMER_SUBSCRIPTION_DELETED: "customer.subscription.deleted",
 };
 
@@ -43,7 +43,7 @@ module.exports = async ({ req, res, log }) => {
       const event = validateEvent(stripeClient, req);
       if (!event) return res.empty(400);
 
-      if (event.type === StripeEvent.CHECKOUT_SESSION_COMPLETED) {
+      if (event.type === StripeEvent.CUSTOMER_SUBSCRIPTION_CREATED) {
         const session = event.data.object;
         const userId = session.metadata.userId;
 
