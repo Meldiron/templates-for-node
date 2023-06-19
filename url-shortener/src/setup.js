@@ -33,10 +33,10 @@ async function setup() {
     console.log(`Database created.`);
   }
 
-  await setupDatabase(client);
+  await setupDatabase(databases);
 }
 
-async function setupDatabase(client) {
+async function setupDatabase(databases) {
   try {
     await databases.create(DATABASE_ID, DATABASE_NAME);
     await databases.createCollection(
