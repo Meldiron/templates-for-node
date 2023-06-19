@@ -7,6 +7,8 @@ const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
 const COLLECTION_NAME = "URLs";
 
 async function setup() {
+  console.log("Executing setup script...");
+
   const { missing, warnings } = validate();
   missing.forEach((variable) =>
     console.error(`Missing required environment variable: ${variable}`)
