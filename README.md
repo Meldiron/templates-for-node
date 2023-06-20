@@ -10,3 +10,4 @@ This repository contains Appwrite function templates for the Node runtime.
 - [URL Shortener](url-shortener/) - A URL shortening service. Create a short URL for any URL, and redirect to the original URL when the short URL is visited.
 - [Subscription with Stripe](subscription-with-stripe/) - Endspoint to checkout with Stripe, and receive Stripe webhooks to manage subscriptions.
 - [Discord Bot](discord-bot/) - A Discord bot that responds to slash commands.
+- [Github Bot](github-bot/) - A Github bot replies to new issues with a welcome message.
