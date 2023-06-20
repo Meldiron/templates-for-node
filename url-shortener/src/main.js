@@ -1,6 +1,6 @@
 const { customAlphabet } = require("nanoid");
 const { Client, Databases } = require("node-appwrite");
-const validate = require("./validate");
+const getEnvironment = require("./environment");
 
 const nanoid = customAlphabet(
   "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -8,17 +8,14 @@ const nanoid = customAlphabet(
 );
 
 module.exports = async ({ res, req, log, error }) => {
-  const { missing, warnings } = validate();
-  missing.forEach((variable) =>
-    error(`Missing required environment variable: ${variable}`)
-  );
-  warnings.forEach((warning) => log(`WARNING: ${warning}`));
+  const { APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY } =
+    getEnvironment();
 
   const client = new Client();
   client
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID)
+    .setKey(APPWRITE_API_KEY);
 
   const databases = new Databases(client);
 
@@ -61,8 +58,7 @@ module.exports = async ({ res, req, log, error }) => {
 };
 
 async function generateShortUrl(databases, originalUrl) {
-  const DATABASE_ID = process.env.DATABASE_ID ?? "url-shortener";
-  const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
+  const { SHORT_DOMAIN, DATABASE_ID, COLLECTION_ID } = getEnvironment();
 
   const document = await databases.createDocument(
     DATABASE_ID,
@@ -72,12 +68,11 @@ async function generateShortUrl(databases, originalUrl) {
       original: originalUrl,
     }
   );
-  return `${process.env.SHORT_DOMAIN}/${document.$id}`;
+  return `${SHORT_DOMAIN}/${document.$id}`;
 }
 
 async function getOriginalUrl(databases, shortId) {
-  const DATABASE_ID = process.env.DATABASE_ID ?? "url-shortener";
-  const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
+  const { DATABASE_ID, COLLECTION_ID } = getEnvironment();
 
   const document = await databases.getDocument(
     DATABASE_ID,

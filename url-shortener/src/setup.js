@@ -1,25 +1,21 @@
 const { Databases, Client } = require("node-appwrite");
-const validate = require("./validate");
-
-const DATABASE_ID = process.env.DATABASE_ID ?? "url-shortener";
-const DATABASE_NAME = "URL Shortener";
-const COLLECTION_ID = process.env.COLLECTION_ID ?? "urls";
-const COLLECTION_NAME = "URLs";
+const getEnvironment = require("./environment");
 
 async function setup() {
   console.log("Executing setup script...");
 
-  const { missing, warnings } = validate();
-  missing.forEach((variable) =>
-    console.error(`Missing required environment variable: ${variable}`)
-  );
-  warnings.forEach((warning) => console.log(`WARNING: ${warning}`));
+  const {
+    APPWRITE_ENDPOINT,
+    APPWRITE_PROJECT_ID,
+    APPWRITE_API_KEY,
+    DATABASE_ID,
+  } = getEnvironment();
 
   const client = new Client();
   client
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID)
+    .setKey(APPWRITE_API_KEY);
 
   const databases = new Databases(client);
 
@@ -28,7 +24,7 @@ async function setup() {
     console.log(`Database exists.`);
   } catch (err) {
     // If the database does not exist, we can create it
-    if (err.code !== 404) throw error;
+    if (err.code !== 404) throw err;
     await setupDatabase(databases);
     console.log(`Database created.`);
   }
@@ -37,6 +33,8 @@ async function setup() {
 }
 
 async function setupDatabase(databases) {
+  const { DATABASE_ID, DATABASE_NAME, COLLECTION_ID, COLLECTION_NAME } =
+    getEnvironment();
   try {
     await databases.create(DATABASE_ID, DATABASE_NAME);
     await databases.createCollection(
@@ -50,9 +48,9 @@ async function setupDatabase(databases) {
       "original",
       true
     );
-  } catch (error) {
+  } catch (err) {
     // If resource already exists, we can ignore the error
-    if (error.code !== 409) throw error;
+    if (err.code !== 409) throw err;
   }
 }
 

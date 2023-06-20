@@ -64,6 +64,8 @@ module.exports = async ({ req, res, log, error }) => {
   log("Form data is valid.");
 
   const transport = nodemailer.createTransport({
+    // @ts-ignore
+    // Not sure what's going on here.
     host: SMTP_HOST,
     port: SMTP_PORT,
     auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
