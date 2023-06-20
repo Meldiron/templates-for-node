@@ -1,4 +1,4 @@
-const validate = require("./validate");
+const validate = require("./environment");
 
 async function setup() {
   console.log("Executing setup script...");

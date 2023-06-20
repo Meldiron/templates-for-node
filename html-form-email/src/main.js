@@ -1,6 +1,6 @@
 const querystring = require("node:querystring");
 const nodemailer = require("nodemailer");
-const validate = require("./validate");
+const getEnvironment = require("./environment");
 
 const ErrorCode = {
   INVALID_REQUEST: "invalid-request",
@@ -9,11 +9,20 @@ const ErrorCode = {
 };
 
 module.exports = async ({ req, res, log, error }) => {
-  const { missing, warnings } = validate();
-  missing.forEach((variable) =>
-    error(`Missing required environment variable: ${variable}`)
-  );
-  warnings.forEach((warning) => log(`WARNING: ${warning}`));
+  const {
+    SUBMIT_EMAIL,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USERNAME,
+    SMTP_PASSWORD,
+    ALLOWED_ORIGINS,
+  } = getEnvironment();
+
+  if (ALLOWED_ORIGINS === "*") {
+    log(
+      "WARNING: Allowing requests from any origin - this is a security risk!"
+    );
+  }
 
   const { isValid, referer, origin } = isRequestValid(req);
   if (!isValid) {
@@ -37,7 +46,14 @@ module.exports = async ({ req, res, log, error }) => {
   };
 
   const form = querystring.parse(req.body);
-  if (!hasFormFields(form)) {
+  if (
+    !(
+      form.email &&
+      form._next &&
+      typeof form.email === "string" &&
+      typeof form._next === "string"
+    )
+  ) {
     log("Missing form data.");
     return res.redirect(
       constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS),
@@ -47,10 +63,15 @@ module.exports = async ({ req, res, log, error }) => {
   }
   log("Form data is valid.");
 
-  const transport = createEmailTransport();
+  const transport = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
+  });
+
   const mailOptions = {
     from: form.email,
-    to: process.env.SUBMIT_EMAIL,
+    to: SUBMIT_EMAIL,
     subject: `Form submission from ${form.email}`,
     text: formatEmailMessage(form),
   };
@@ -88,19 +109,6 @@ function isOriginPermitted(origin) {
   const allowedOriginsArray = allowedOrigins.split(",");
   return allowedOriginsArray.includes(origin);
 }
-
-function hasFormFields(form) {
-  return !!(form.email && form.message && form._next);
-}
-
-function createEmailTransport() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    auth: { user: process.env.SMTP_USERNAME, pass: process.env.SMTP_PASSWORD },
-  });
-}
-
 function formatEmailMessage(form) {
   return `You've received a new message.\n
 ${Object.entries(form)
