@@ -54,9 +54,9 @@ async function setupDatabase(databases) {
       255,
       true
     );
-  } catch (error) {
+  } catch (err) {
     // If resource already exists, we can ignore the error
-    if (error.code !== 409) throw error;
+    if (err.code !== 409) throw err;
   }
 }
 

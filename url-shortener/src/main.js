@@ -2,10 +2,10 @@ const { customAlphabet } = require("nanoid");
 const { Client, Databases } = require("node-appwrite");
 const getEnvironment = require("./environment");
 
-const nanoid = customAlphabet(
-  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  6
-);
+const ALPHABET =
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const nanoid = customAlphabet(ALPHABET, 6);
 
 module.exports = async ({ res, req, log, error }) => {
   const { APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY } =

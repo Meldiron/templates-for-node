@@ -1,8 +1,6 @@
 /**
- * Get the value of the environment variable.
- * @param {string} key - The name of the environment variable.
- * @throws Will throw an error if the environment variable is not set.
- * @return {string} The value of the environment variable.
+ * @param {string} key
+ * @return {string}
  */
 function getRequiredEnv(key) {
   const value = process.env[key];
@@ -13,10 +11,8 @@ function getRequiredEnv(key) {
 }
 
 /**
- * Get the value of a URL environment variable.
- * @param {string} key - The name of the environment variable.
- * @throws Will throw an error if the environment variable is not set or is not a valid URL.
- * @return {string} The value of the environment variable.
+ * @param {string} key
+ * @return {string}
  */
 function getRequiredUrlEnv(key) {
   const value = getRequiredEnv(key);
