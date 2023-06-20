@@ -1,12 +1,13 @@
 const stripe = require("stripe");
 const { Client } = require("node-appwrite");
+const validate = require("./validate");
 
 const StripeEvent = {
   CUSTOMER_SUBSCRIPTION_CREATED: "customer.subscription.created",
   CUSTOMER_SUBSCRIPTION_DELETED: "customer.subscription.deleted",
 };
 
-module.exports = async ({ req, res, log }) => {
+module.exports = async ({ req, res, log, error }) => {
   const { missing, warnings } = validate();
   missing.forEach((variable) =>
     error(`Missing required environment variable: ${variable}`)
@@ -34,6 +35,7 @@ module.exports = async ({ req, res, log }) => {
 
       const session = await createCheckoutSession(stripeClient, userId);
       if (!session) {
+        error("Failed to create Stripe checkout session.");
         return res.redirect(process.env.CANCEL_URL, 303);
       }
 
@@ -41,7 +43,7 @@ module.exports = async ({ req, res, log }) => {
 
     case "/webhook":
       const event = validateEvent(stripeClient, req);
-      if (!event) return res.empty(400);
+      if (!event) return res.empty();
 
       if (event.type === StripeEvent.CUSTOMER_SUBSCRIPTION_CREATED) {
         const session = event.data.object;
@@ -56,7 +58,7 @@ module.exports = async ({ req, res, log }) => {
         log(`Subscription deleted for user ${userId}.`);
       }
 
-      return res.empty(200);
+      return res.empty();
 
     default:
       return res.send("Not Found", 404);
@@ -87,7 +89,6 @@ async function createCheckoutSession(stripeClient, userId) {
       },
     });
   } catch (err) {
-    error(`Failed to create a Stripe subscription. ${err}`);
     return null;
   }
 }

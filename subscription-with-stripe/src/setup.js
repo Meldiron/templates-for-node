@@ -28,7 +28,7 @@ async function setup() {
     console.log(`Database exists.`);
   } catch (err) {
     // If the database does not exist, we can create it
-    if (err.code !== 404) throw error;
+    if (err.code !== 404) throw err;
     await setupDatabase(databases);
     console.log(`Database created.`);
   }

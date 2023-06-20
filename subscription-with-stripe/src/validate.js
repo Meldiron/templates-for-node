@@ -8,6 +8,9 @@ const REQUIRED_VARIABLES = [
   "CANCEL_URL",
 ];
 
+/**
+ * @returns {{missing: string[], warnings: string[]}}
+ */
 module.exports = function () {
   const missing = REQUIRED_VARIABLES.filter(
     (variable) => !process.env[variable]
@@ -27,9 +30,14 @@ module.exports = function () {
   };
 };
 
-function isValidUrl(...urls) {
+/**
+ * @param {string | undefined} url
+ * @returns {boolean}
+ */
+function isValidUrl(url) {
+  if (!url) return false;
   try {
-    new URL(...urls);
+    new URL(url);
     return true;
   } catch (err) {
     return false;
