@@ -1,6 +1,6 @@
 const stripe = require("stripe");
 const { Client } = require("node-appwrite");
-const validate = require("./validate");
+const getEnvironment = require("./environment");
 
 const StripeEvent = {
   CUSTOMER_SUBSCRIPTION_CREATED: "customer.subscription.created",
@@ -8,35 +8,37 @@ const StripeEvent = {
 };
 
 module.exports = async ({ req, res, log, error }) => {
-  const { missing, warnings } = validate();
-  missing.forEach((variable) =>
-    error(`Missing required environment variable: ${variable}`)
-  );
-  warnings.forEach((warning) => log(`WARNING: ${warning}`));
+  const {
+    STRIPE_SECRET_KEY,
+    APPWRITE_ENDPOINT,
+    APPWRITE_PROJECT_ID,
+    APPWRITE_API_KEY,
+    CANCEL_URL,
+  } = getEnvironment();
 
   const client = new Client();
   client
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID)
+    .setKey(APPWRITE_API_KEY);
 
-  const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
+  const stripeClient = stripe(STRIPE_SECRET_KEY);
 
   switch (req.path) {
     case "/checkout":
       if (req.headers["content-type"] !== "application/x-www-form-urlencoded") {
-        return res.redirect(process.env.CANCEL_URL, 303);
+        return res.redirect(CANCEL_URL, 303);
       }
 
       const userId = req.headers["APPWRITE_FUNCTION_USER_ID"];
       if (!userId) {
-        return res.redirect(process.env.CANCEL_URL, 303);
+        return res.redirect(CANCEL_URL, 303);
       }
 
       const session = await createCheckoutSession(stripeClient, userId);
       if (!session) {
         error("Failed to create Stripe checkout session.");
-        return res.redirect(process.env.CANCEL_URL, 303);
+        return res.redirect(CANCEL_URL, 303);
       }
 
       return res.redirect(session.url, 303);
@@ -66,6 +68,7 @@ module.exports = async ({ req, res, log, error }) => {
 };
 
 async function createCheckoutSession(stripeClient, userId) {
+  const { SUCCESS_URL, CANCEL_URL } = getEnvironment();
   try {
     return await stripeClient.subscriptions.create({
       payment_method_types: ["card"],
@@ -82,8 +85,8 @@ async function createCheckoutSession(stripeClient, userId) {
           quantity: 1,
         },
       ],
-      success_url: process.env.SUCCESS_URL,
-      cancel_url: process.env.CANCEL_URL,
+      success_url: SUCCESS_URL,
+      cancel_url: CANCEL_URL,
       metadata: {
         userId,
       },
@@ -94,11 +97,12 @@ async function createCheckoutSession(stripeClient, userId) {
 }
 
 function validateEvent(stripeClient, req) {
+  const { STRIPE_WEBHOOK_SECRET } = getEnvironment();
   try {
     return stripeClient.webhooks.constructEvent(
       req.body,
       req.headers["stripe-signature"],
-      process.env.STRIPE_WEBHOOK_SECRET
+      STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
     return null;

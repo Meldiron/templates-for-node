@@ -1,25 +1,21 @@
 const { Client, Databases } = require("node-appwrite");
-const validate = require("./validate");
-
-const DATABASE_ID = process.env.DATABASE_ID ?? "stripe-subscriptions";
-const DATABASE_NAME = "Stripe Subscriptions";
-const COLLECTION_ID = process.env.COLLECTION_ID ?? "subscriptions";
-const COLLECTION_NAME = "Subscriptions";
+const getEnvironment = require("./environment");
 
 async function setup() {
   console.log("Executing setup script...");
 
-  const { missing, warnings } = validate();
-  missing.forEach((variable) =>
-    console.error(`Missing required environment variable: ${variable}`)
-  );
-  warnings.forEach((warning) => console.log(`WARNING: ${warning}`));
+  const {
+    APPWRITE_ENDPOINT,
+    APPWRITE_PROJECT_ID,
+    APPWRITE_API_KEY,
+    DATABASE_ID,
+  } = getEnvironment();
 
   const client = new Client();
   client
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID)
+    .setKey(APPWRITE_API_KEY);
 
   const databases = new Databases(client);
 
@@ -35,6 +31,8 @@ async function setup() {
 }
 
 async function setupDatabase(databases) {
+  const { DATABASE_ID, DATABASE_NAME, COLLECTION_ID, COLLECTION_NAME } =
+    getEnvironment();
   try {
     await databases.create(DATABASE_ID, DATABASE_NAME);
     await databases.createCollection(
