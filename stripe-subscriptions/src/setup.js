@@ -30,6 +30,9 @@ async function setup() {
   }
 }
 
+/**
+ * @param {Databases} databases
+ */
 async function setupDatabase(databases) {
   const { DATABASE_ID, DATABASE_NAME, COLLECTION_ID, COLLECTION_NAME } =
     getEnvironment();
@@ -50,7 +53,7 @@ async function setupDatabase(databases) {
     await databases.createStringAttribute(
       DATABASE_ID,
       COLLECTION_ID,
-      "subscriptionId",
+      "subscriptionType",
       255,
       true
     );

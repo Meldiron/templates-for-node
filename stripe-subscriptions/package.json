@@ -1,5 +1,5 @@
 {
-  "name": "subscription-with-stripe",
+  "name": "stripe-subscriptions",
   "version": "1.0.0",
   "description": "",
   "main": "src/main.js",
@@ -12,6 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "node-appwrite": "^9.0.0",
-    "stripe": "^12.9.0"
+    "stripe": "^12.9.0",
+    "stripe-event-types": "^2.3.0"
   }
 }

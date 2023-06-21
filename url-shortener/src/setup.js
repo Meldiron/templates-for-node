@@ -32,6 +32,9 @@ async function setup() {
   await setupDatabase(databases);
 }
 
+/**
+ * @param {Databases} databases
+ */
 async function setupDatabase(databases) {
   const { DATABASE_ID, DATABASE_NAME, COLLECTION_ID, COLLECTION_NAME } =
     getEnvironment();
