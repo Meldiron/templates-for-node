@@ -11,3 +11,4 @@ This repository contains Appwrite function templates for the Node runtime.
 - [Stripe Subscriptions](stripe-subscriptions/) - A function that creates a Stripe checkout session, and a webhook endpoint to handle Stripe events.
 - [Discord Bot](discord-bot/) - A Discord bot that responds to slash commands.
 - [GitHub Bot](github-bot/) - A Github bot replies to new issues with a welcome message.
+- [ChatGPT Article Summarizer](chatgpt-article-summarizer/) - A function that summarizes new articles using the OpenAI API.
