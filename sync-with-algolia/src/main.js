@@ -1,7 +1,8 @@
 const { Client, Databases, Query } = require("node-appwrite");
-const algoliasearch = require('algoliasearch');
+const algoliasearch = require("algoliasearch");
+const fs = require("fs");
 
-module.exports = async ({ res, log }) => {
+module.exports = async ({ req, res, log }) => {
   const {
     ALGOLIA_APP_ID,
     ALGOLIA_ADMIN_API_KEY,
@@ -24,6 +25,12 @@ module.exports = async ({ res, log }) => {
     !ALGOLIA_INDEX_ID
   ) {
     throw new Error("Function is missing required environment variables.");
+  }
+
+  if (req.method === "GET") {
+    let html = fs.readFileSync(__dirname + "/static/index.html");
+
+    res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
   const client = new Client()
