@@ -1,4 +1,5 @@
 const { Client, Databases, Query } = require("node-appwrite");
+const algoliasearch = require('algoliasearch');
 
 module.exports = async ({ res, log }) => {
   const {
