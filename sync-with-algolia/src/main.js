@@ -8,6 +8,7 @@ module.exports = async ({ req, res, log }) => {
     ALGOLIA_APP_ID,
     ALGOLIA_ADMIN_API_KEY,
     ALGOLIA_INDEX_ID,
+    ALGOLIA_SEARCH_API_KEY,
 
     APPWRITE_API_KEY,
     APPWRITE_DATABASE_ID,
@@ -23,13 +24,18 @@ module.exports = async ({ req, res, log }) => {
     !APPWRITE_COLLECTION_ID ||
     !ALGOLIA_APP_ID ||
     !ALGOLIA_ADMIN_API_KEY ||
-    !ALGOLIA_INDEX_ID
+    !ALGOLIA_INDEX_ID ||
+    !ALGOLIA_SEARCH_API_KEY
   ) {
     throw new Error("Function is missing required environment variables.");
   }
 
   if (req.method === "GET") {
     let html = fs.readFileSync(path.join(__dirname, "../static/index.html"));
+    html = html
+        .split('{{ALGOLIA_APP_ID}}', ALGOLIA_APP_ID)
+        .split('{{ALGOLIA_INDEX_ID}}', ALGOLIA_INDEX_ID)
+        .split('{{ALGOLIA_SEARCH_API_KEY}}', ALGOLIA_SEARCH_API_KEY);
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
