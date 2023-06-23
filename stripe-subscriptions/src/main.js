@@ -29,6 +29,12 @@ module.exports = async ({ req, res, log, error }) => {
   switch (req.path) {
     case "/checkout":
       const userId = req.headers["APPWRITE_FUNCTION_USER_ID"];
+
+      log("Headers:");
+      req.headers.forEach((value, key) => {
+        log(`${key} = ${value}`);
+      });
+
       if (!userId) {
         error("User ID not found in request.");
         return res.redirect(CANCEL_URL, 303);
