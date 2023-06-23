@@ -28,12 +28,9 @@ module.exports = async ({ req, res, log, error }) => {
 
   switch (req.path) {
     case "/checkout":
-      if (req.headers["content-type"] !== "application/x-www-form-urlencoded") {
-        return res.redirect(CANCEL_URL, 303);
-      }
-
       const userId = req.headers["APPWRITE_FUNCTION_USER_ID"];
       if (!userId) {
+        error("User ID not found in request.");
         return res.redirect(CANCEL_URL, 303);
       }
 

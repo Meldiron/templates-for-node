@@ -30,8 +30,7 @@ This function supports two primary request paths:
 1. **Checkout Session Creation**
 
    - **Request Path:** /checkout
-   - **Request Type:** POST
-   - **Content Type:** application/x-www-form-urlencoded
+   - **Request Type:** GET
    - **Response:** 
      - On success, the function will redirect to the Stripe Checkout session URL.
      - If the request fails, the user is redirected to the specified `CANCEL_URL`.
