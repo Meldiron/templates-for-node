@@ -38,8 +38,8 @@ function isValidUrl(url) {
 
 module.exports = function getEnvironment() {
   return {
-    APPWRITE_ENDPOINT: getRequiredEnv("APPWRITE_ENDPOINT"),
-    APPWRITE_PROJECT_ID: getRequiredUrlEnv("APPWRITE_PROJECT_ID"),
+    APPWRITE_ENDPOINT: getRequiredUrlEnv("APPWRITE_ENDPOINT"),
+    APPWRITE_PROJECT_ID: getRequiredEnv("APPWRITE_PROJECT_ID"),
     APPWRITE_API_KEY: getRequiredEnv("APPWRITE_API_KEY"),
     STRIPE_WEBHOOK_SECRET: getRequiredEnv("STRIPE_WEBHOOK_SECRET"),
     STRIPE_SECRET_KEY: getRequiredEnv("STRIPE_SECRET_KEY"),
