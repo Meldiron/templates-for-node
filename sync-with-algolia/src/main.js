@@ -28,7 +28,7 @@ module.exports = async ({ req, res, log }) => {
   }
 
   if (req.method === "GET") {
-    let html = fs.readFileSync(__dirname + "/static/index.html");
+    let html = fs.readFileSync("static/index.html");
 
     res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
