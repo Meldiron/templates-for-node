@@ -31,7 +31,7 @@ module.exports = async ({ req, res, log }) => {
   }
 
   if (req.method === "GET") {
-    let html = fs.readFileSync(path.join(__dirname, "../static/index.html"));
+    let html = fs.readFileSync(path.join(__dirname, "../static/index.html")).toString();
     html = html
         .split('{{ALGOLIA_APP_ID}}', ALGOLIA_APP_ID)
         .split('{{ALGOLIA_INDEX_ID}}', ALGOLIA_INDEX_ID)
