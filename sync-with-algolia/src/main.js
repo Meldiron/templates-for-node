@@ -2,6 +2,10 @@ const { Client, Databases, Query } = require("node-appwrite");
 
 module.exports = async ({ res, log }) => {
   const {
+    ALGOLIA_APP_ID,
+    ALGOLIA_ADMIN_API_KEY,
+    ALGOLIA_INDEX_ID,
+
     APPWRITE_API_KEY,
     APPWRITE_DATABASE_ID,
     APPWRITE_COLLECTION_ID,
@@ -10,7 +14,14 @@ module.exports = async ({ res, log }) => {
     APPWRITE_FUNCTION_PROJECT_ID,
   } = process.env;
 
-  if (!APPWRITE_API_KEY || !APPWRITE_DATABASE_ID || !APPWRITE_COLLECTION_ID) {
+  if (
+    !APPWRITE_API_KEY ||
+    !APPWRITE_DATABASE_ID ||
+    !APPWRITE_COLLECTION_ID ||
+    !ALGOLIA_APP_ID ||
+    !ALGOLIA_ADMIN_API_KEY ||
+    !ALGOLIA_INDEX_ID
+  ) {
     throw new Error("Function is missing required environment variables.");
   }
 
@@ -20,6 +31,9 @@ module.exports = async ({ res, log }) => {
     .setKey(APPWRITE_API_KEY);
 
   const databases = new Databases(client);
+
+  const algoliaClient = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_ADMIN_API_KEY);
+  const algoliaIndex = algoliaClient.initIndex(ALGOLIA_INDEX_ID);
 
   let cursor = null;
 
@@ -46,8 +60,11 @@ module.exports = async ({ res, log }) => {
 
     log(`Syncing chunk of ${response.documents.length} documents ...`);
 
-    // Sync Algolia index
-    // TODO: Implement me
+    const records = response.documents.map((document) => ({
+      ...document,
+      objectID: document.$id,
+    }));
+    await algoliaIndex.saveObjects(records);
   } while (cursor !== null);
 
   log("Sync finished.");
