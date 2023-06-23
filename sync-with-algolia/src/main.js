@@ -31,11 +31,18 @@ module.exports = async ({ req, res, log }) => {
   }
 
   if (req.method === "GET") {
-    let html = fs.readFileSync(path.join(__dirname, "../static/index.html")).toString();
+    let html = fs
+      .readFileSync(path.join(__dirname, "../static/index.html"))
+      .toString();
+
     html = html
-        .split('{{ALGOLIA_APP_ID}}', ALGOLIA_APP_ID)
-        .split('{{ALGOLIA_INDEX_ID}}', ALGOLIA_INDEX_ID)
-        .split('{{ALGOLIA_SEARCH_API_KEY}}', ALGOLIA_SEARCH_API_KEY);
+      .split("{{ALGOLIA_APP_ID}}")
+      .join(ALGOLIA_APP_ID)
+      .split("{{ALGOLIA_INDEX_ID}}")
+      .join(ALGOLIA_INDEX_ID)
+      .split("{{ALGOLIA_SEARCH_API_KEY}}")
+      .join(ALGOLIA_SEARCH_API_KEY);
+
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
