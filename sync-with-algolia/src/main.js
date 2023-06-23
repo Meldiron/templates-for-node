@@ -1,6 +1,7 @@
 const { Client, Databases, Query } = require("node-appwrite");
 const algoliasearch = require("algoliasearch");
 const fs = require("fs");
+const path = require("path");
 
 module.exports = async ({ req, res, log }) => {
   const {
@@ -28,9 +29,8 @@ module.exports = async ({ req, res, log }) => {
   }
 
   if (req.method === "GET") {
-    let html = fs.readFileSync("static/index.html");
-
-    res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
+    let html = fs.readFileSync(path.join(__dirname, "../static/index.html"));
+    return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
   const client = new Client()
