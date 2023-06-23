@@ -28,7 +28,7 @@ module.exports = async ({ req, res, log, error }) => {
 
   switch (req.path) {
     case "/checkout":
-      const userId = req.headers["APPWRITE_FUNCTION_USER_ID"];
+      const userId = req.headers["x-appwrite-user-id"];
 
       log("Headers:");
       req.headers.forEach((value, key) => {
