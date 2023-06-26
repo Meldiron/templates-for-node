@@ -1,6 +1,6 @@
 # Templates for Node
 
-This repository contains Appwrite function templates for the Node runtime.
+This repository contains Appwrite Function templates for the Node runtime.
 
 ## Templates
 
