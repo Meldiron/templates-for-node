@@ -22,7 +22,7 @@
           }
         );
 
-        return await response.json();
+        return (await response.json()).hits;
       }
     </script>
     <script src="//unpkg.com/alpinejs" defer></script>
