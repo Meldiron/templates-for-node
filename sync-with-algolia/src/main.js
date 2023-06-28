@@ -59,7 +59,7 @@ module.exports = async ({ req, res, log }) => {
   let cursor = null;
 
   do {
-    const queries = [Query.limit(5)];
+    const queries = [Query.limit(100)];
 
     if (cursor) {
       queries.push(Query.cursorAfter(cursor));
