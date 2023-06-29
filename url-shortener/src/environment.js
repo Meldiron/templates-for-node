@@ -1,3 +1,5 @@
+const { isValidURL } = require("./utils");
+
 module.exports = function getEnvironment() {
   return {
     APPWRITE_API_KEY: getRequiredEnv("APPWRITE_API_KEY"),
@@ -29,22 +31,8 @@ function getRequiredEnv(key) {
  */
 function getRequiredUrlEnv(key) {
   const value = getRequiredEnv(key);
-  if (!isValidUrl(value)) {
-    throw new Error(`Environment variable ${key} is a not valid URL`);
+  if (!isValidURL(value)) {
+    throw new Error(`Environment variable ${key}=${value} is a not valid URL`);
   }
   return value;
-}
-
-/**
- * @param {string | undefined} url
- * @returns {boolean}
- */
-function isValidUrl(url) {
-  if (!url) return false;
-  try {
-    new URL(url);
-    return true;
-  } catch (err) {
-    return false;
-  }
 }
