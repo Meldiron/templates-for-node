@@ -31,12 +31,9 @@ module.exports = async ({ req, res }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  // TODO: Remove body.payload (backward compatibility)
-  if (!req.bodyString && !req.body.payload) {
+  if (!req.bodyString) {
     return res.send("Missing body with a prompt.", 400);
   }
-
-  const prompt = req.bodyString ? req.bodyString : req.body.payload;
 
   const response = await axios.post(
     `https://api.openai.com/v1/chat/completions`,
@@ -45,7 +42,7 @@ module.exports = async ({ req, res }) => {
       messages: [
         {
           role: "system",
-          content: prompt,
+          content: req.bodyString,
         },
       ],
       max_tokens: OPENAI_MAX_TOKENS || undefined,
