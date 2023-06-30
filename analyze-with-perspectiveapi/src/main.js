@@ -30,8 +30,7 @@ module.exports = async ({ req, res }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  // TODO: Remove body.payload (backward compatibility)
-  if (!req.bodyString && !req.body.payload) {
+  if (!req.bodyString) {
     return res.send("Missing body with a prompt.", 400);
   }
 
