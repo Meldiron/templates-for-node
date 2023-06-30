@@ -17,10 +17,16 @@
       const functions = new Functions(client);
 
       async function onSubmit(prompt) {
-        const response = await functions.createExecution(
-          "{{APPWRITE_FUNCTION_ID}}",
-          prompt
-        );
+        const response = fetch('/', {
+          method: 'POST',
+          body: prompt,
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        });
+
+        console.log(response);
+
         return response.body;
       }
     </script>
