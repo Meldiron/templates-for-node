@@ -17,7 +17,7 @@
       const functions = new Functions(client);
 
       async function onSubmit(prompt) {
-        const response = fetch('/', {
+        const response = await fetch('/', {
           method: 'POST',
           body: prompt,
           headers: {
@@ -25,9 +25,7 @@
           }
         });
 
-        console.log(response);
-
-        return response.body;
+        return await response.text();
       }
     </script>
 
