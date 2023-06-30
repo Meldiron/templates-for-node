@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt ChatGPT Demo</title>
+
+    <script>
+      async function onSbmit(prompt) {
+        // const response = await fetch(
+        //   "{{ALGOLIA_ENDPOINT}}/indexes/{{ALGOLIA_INDEX_NAME}}/search",
+        //   {
+        //     method: "POST",
+        //     body: JSON.stringify({
+        //       q: prompt,
+        //     }),
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //       Authorization: "Bearer {{ALGOLIA_SEARCH_API_KEY}}",
+        //     },
+        //   }
+        // );
+        // return (await response.json()).hits;
+      }
+    </script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/@appwrite.io/pink" />
+    <link rel="stylesheet" href="https://unpkg.com/@appwrite.io/pink-icons" />
+  </head>
+  <body>
+    <main class="main-content">
+      <div class="top-cover u-padding-block-end-56">
+        <div class="container">
+          <div
+            class="u-flex u-gap-16 u-flex-justify-center u-margin-block-start-16"
+          >
+            <h1 class="heading-level-1">Prompt ChatGPT Demo</h1>
+            <code class="u-un-break-text"></code>
+          </div>
+          <p
+            class="body-text-1 u-normal u-margin-block-start-8"
+            style="max-width: 50rem"
+          >
+            This is demo application. You can ue this app to ensure
+            implementation with Chat GPT works properly. Use input below to
+            enter prompts and get a response.
+          </p>
+        </div>
+      </div>
+      <div
+        class="container u-margin-block-start-negative-56"
+        x-data="{ prompt: '', answer: '' }"
+      >
+        <div class="card u-flex u-gap-24 u-flex-vertical">
+          <div id="searchbox">
+            <div
+              class="input-text-wrapper is-with-end-button u-width-full-line"
+            >
+              <input x-model="prompt" type="search" placeholder="Question" />
+              <div class="icon-search" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div id="hits" class="u-flex u-flex-vertical u-gap-12">
+            <div class="u-flex u-flex-vertical u-gap-12 card">
+              <div class="u-flex u-gap-12">
+                <h5 class="eyebrow-heading-2">subtitle</h5>
+              </div>
+
+              <div style="overflow-x: hidden; line-break: anywhere">
+                <p class="u-color-text-gray">text</p>
+              </div>
+            </div>
+
+            <h2>title</h2>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
