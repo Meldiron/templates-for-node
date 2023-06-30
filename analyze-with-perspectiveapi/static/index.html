@@ -65,7 +65,7 @@
             <div
               class="input-text-wrapper is-with-end-button u-width-full-line"
             >
-              <input x-model="prompt" type="search" placeholder="Question" />
+              <input x-model="prompt" type="search" placeholder="Message" />
               <div class="icon-search" aria-hidden="true"></div>
             </div>
 
@@ -74,7 +74,7 @@
               x-bind:disabled="loading"
               x-on:click="async () => { loading = true; answer = ''; try { answer = await onSubmit(prompt) } catch(err) { console.error(err); } finally { loading = false; } }"
             >
-              <span class="text">Submit</span>
+              <span class="text">Analyze</span>
             </button>
           </div>
           <template x-if="answer">
