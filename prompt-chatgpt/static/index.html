@@ -11,7 +11,7 @@
       const { Client, Functions } = Appwrite;
 
       const client = new Client()
-        .setEndpoint("https://cloud.appwrite.io/v1")
+        .setEndpoint("{{APPWRITE_ENDPOINT}}")
         .setProject("{{APPWRITE_FUNCTION_PROJECT_ID}}");
 
       const functions = new Functions(client);
