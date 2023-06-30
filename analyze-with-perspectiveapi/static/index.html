@@ -27,7 +27,7 @@
 
         const chance = await response.text();
 
-        const percent = Math.round(chance*100*1000)/1000;
+        const percent = Math.round(chance*100*100)/100;
 
         return `Toxicity of your message is: ${percent}%`;
       }
