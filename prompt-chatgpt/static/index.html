@@ -6,24 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Prompt ChatGPT Demo</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@11.0.0"></script>
     <script>
+      const { Client, Functions } = Appwrite;
+
+      const client = new Client()
+        .setEndpoint("https://cloud.appwrite.io/v1")
+        .setProject("{{APPWRITE_FUNCTION_PROJECT_ID}}");
+
+      const functions = new Functions(client);
+
       async function onSbmit(prompt) {
-        // const response = await fetch(
-        //   "{{ALGOLIA_ENDPOINT}}/indexes/{{ALGOLIA_INDEX_NAME}}/search",
-        //   {
-        //     method: "POST",
-        //     body: JSON.stringify({
-        //       q: prompt,
-        //     }),
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //       Authorization: "Bearer {{ALGOLIA_SEARCH_API_KEY}}",
-        //     },
-        //   }
-        // );
-        // return (await response.json()).hits;
+        const response = await functions.createExecution(
+          "{{APPWRITE_FUNCTION_ID}}",
+          prompt
+        );
+        console.log(response);
+        return "Test";
       }
     </script>
+
     <script src="//unpkg.com/alpinejs" defer></script>
 
     <link rel="stylesheet" href="https://unpkg.com/@appwrite.io/pink" />
@@ -54,27 +56,34 @@
         x-data="{ prompt: '', answer: '' }"
       >
         <div class="card u-flex u-gap-24 u-flex-vertical">
-          <div id="searchbox">
+          <div>
             <div
               class="input-text-wrapper is-with-end-button u-width-full-line"
             >
               <input x-model="prompt" type="search" placeholder="Question" />
               <div class="icon-search" aria-hidden="true"></div>
             </div>
-          </div>
-          <div id="hits" class="u-flex u-flex-vertical u-gap-12">
-            <div class="u-flex u-flex-vertical u-gap-12 card">
-              <div class="u-flex u-gap-12">
-                <h5 class="eyebrow-heading-2">subtitle</h5>
-              </div>
 
-              <div style="overflow-x: hidden; line-break: anywhere">
-                <p class="u-color-text-gray">text</p>
+            <button
+              class="button"
+              x-on:click="async () => { answer = await onSubmit(prompt) }"
+            >
+              <span class="text">Submit</span>
+            </button>
+          </div>
+          <template x-if="answer">
+            <div class="u-flex u-flex-vertical u-gap-12">
+              <div class="u-flex u-flex-vertical u-gap-12 card">
+                <div class="u-flex u-gap-12">
+                  <h5 class="eyebrow-heading-2">Chat GPT</h5>
+                </div>
+
+                <div style="overflow-x: hidden; line-break: anywhere">
+                  <p class="u-color-text-gray" x-text="answer"></p>
+                </div>
               </div>
             </div>
-
-            <h2>title {{APPWRITE_FUNCTION_ID}}</h2>
-          </div>
+          </template>
         </div>
       </div>
     </main>
