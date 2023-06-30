@@ -58,5 +58,5 @@ module.exports = async ({ req, res }) => {
     }
   );
 
-  return res.send(response.data.choices[0].text);
+  return res.send(response.data.choices[0].message.content);
 };
