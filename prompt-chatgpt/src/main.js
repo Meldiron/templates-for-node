@@ -31,15 +31,18 @@ module.exports = async ({ req, res }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  if (!req.bodyString) {
+  // TODO: Remove body.payload (backward compatibility)
+  if (!req.bodyString && !req.body.payload) {
     return res.send("Missing body with a prompt.", 400);
   }
+
+  const prompt = req.bodyString ? req.bodyString : req.body.payload;
 
   const response = await axios.post(
     `https://api.openai.com/v1/completions`,
     JSON.stringify({
       model: "gpt-3.5",
-      prompt: req.bodyString,
+      prompt: prompt,
       max_tokens: OPENAI_MAX_TOKENS || undefined,
     }),
     {
