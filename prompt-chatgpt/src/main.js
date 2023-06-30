@@ -39,10 +39,15 @@ module.exports = async ({ req, res }) => {
   const prompt = req.bodyString ? req.bodyString : req.body.payload;
 
   const response = await axios.post(
-    `https://api.openai.com/v1/completions`,
+    `https://api.openai.com/v1/chat/completions`,
     JSON.stringify({
       model: "gpt-3.5-turbo",
-      prompt: prompt,
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        },
+      ],
       max_tokens: OPENAI_MAX_TOKENS || undefined,
     }),
     {
