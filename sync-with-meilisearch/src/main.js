@@ -80,7 +80,7 @@ module.exports = async ({ req, res, log }) => {
 
     const records = response.documents;
 
-    const indexResponse = await axios.post(
+    await axios.post(
       `${ALGOLIA_ENDPOINT}/indexes/${ALGOLIA_INDEX_NAME}/documents?primaryKey=$id`,
       JSON.stringify(records),
       {
@@ -90,8 +90,6 @@ module.exports = async ({ req, res, log }) => {
         },
       }
     );
-
-    console.log(indexResponse);
   } while (cursor !== null);
 
   log("Sync finished.");
