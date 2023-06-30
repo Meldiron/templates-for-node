@@ -10,10 +10,6 @@ module.exports = async ({ req, res }) => {
     throw new Error("Function is missing required environment variables.");
   }
 
-  if (!req.bodyString) {
-    return res.send("Missing body with a prompt.", 400);
-  }
-
   if (req.method === "GET") {
     let html = fs
       .readFileSync(path.join(__dirname, "../static/index.html"))
@@ -22,6 +18,10 @@ module.exports = async ({ req, res }) => {
     html = html.split("{{APPWRITE_FUNCTION_ID}}").join(APPWRITE_FUNCTION_ID);
 
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
+  }
+
+  if (!req.bodyString) {
+    return res.send("Missing body with a prompt.", 400);
   }
 
   const response = await axios.post(
