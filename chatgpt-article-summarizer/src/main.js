@@ -1,70 +1,42 @@
-const { Client, Databases } = require("node-appwrite");
-const { Configuration, OpenAIApi } = require("openai");
 const getEnvironment = require("./environment");
+const AppwriteService = require("./appwrite");
+const OpenAIService = require("./openai");
 
-module.exports = async ({ req, res, log, error }) => {
-  const {
-    APPWRITE_ENDPOINT,
-    APPWRITE_PROJECT_ID,
-    APPWRITE_API_KEY,
-    OPENAI_API_KEY,
-    BLOG_DATABASE_ID,
-    BLOG_COLLECTION_ID,
-  } = getEnvironment();
+/**
+ * @typedef {Object} ArticleProperties
+ * @property {string} content
+ * @property {string} summary
+ *
+ * @typedef {import('node-appwrite').Models.Document & ArticleProperties} Article
+ */
 
-  const client = new Client();
-  client
-    .setEndpoint(APPWRITE_ENDPOINT)
-    .setProject(APPWRITE_PROJECT_ID)
-    .setKey(APPWRITE_API_KEY);
+module.exports = async ({ req, log }) => {
+  const appwrite = AppwriteService();
+  const openai = OpenAIService();
 
-  const databases = new Databases(client);
+  const article = parseEventData(req);
+  log(`Create event for article ${article.$id}`);
 
-  // OpenAI API setup
-  const configuration = new Configuration({
-    apiKey: OPENAI_API_KEY,
-  });
-  const openai = new OpenAIApi(configuration);
+  const articleSummary = await openai.generateArticleSummary(article);
+  log(`Summary generated for article ${article.$id} - ${articleSummary}.`);
 
-  // Checking the APPWRITE_FUNCTION_EVENT header
-  const functionEvent = req.headers["APPWRITE_FUNCTION_EVENT"];
-  const expectedEvent = `databases.${BLOG_DATABASE_ID}.collections.${BLOG_COLLECTION_ID}.documents.create`;
-  if (functionEvent !== expectedEvent) {
-    log(`Function triggered by other event: ${functionEvent}`);
-    return;
-  }
-
-  const documentId = req.body["$id"];
-  const document = await databases.getDocument(
-    BLOG_DATABASE_ID,
-    "blog-posts",
-    documentId
-  );
-  const content = document["content"];
-
-  // Create a chat with OpenAI and ask it to summarize the blog post content
-  const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: [
-      { role: "system", content: "You are a helpful assistant." },
-      {
-        role: "user",
-        content: `Summarize the following blog post content: ${content}`,
-      },
-    ],
-  });
-
-  // Extract the summary from the OpenAI response
-  const choice = completion.data.choices[0];
-  if (!choice?.message?.content) {
-    error("Failed to generate summary.");
-    return;
-  }
-
-  await databases.updateDocument(BLOG_DATABASE_ID, "blog-posts", documentId, {
-    ...document,
-    summary: choice.message.content,
-  });
-
-  log(`Summary generated for document ${documentId}.`);
+  await appwrite.updateArticleSummary(article.$id, articleSummary);
+  log(`Updated article document.`);
 };
+
+/**
+ * @param {*} req
+ * @returns {Article}
+ */
+function parseEventData(req) {
+  const { ARTICLE_DATABASE_ID, ARTICLE_COLLECTION_ID } = getEnvironment();
+
+  const requestEvent = req.headers["x-appwrite-function"];
+  const expectedEvent = `databases.${ARTICLE_DATABASE_ID}.collections.${ARTICLE_COLLECTION_ID}.documents.create`;
+
+  if (requestEvent !== expectedEvent || req.body.$id) {
+    throw new Error(`Invalid request event ${requestEvent}`);
+  }
+
+  return /** @type {Article} */ (req.body);
+}
