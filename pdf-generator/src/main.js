@@ -3,7 +3,7 @@ const { faker } = require("@faker-js/faker");
 
 module.exports = async ({ res, log }) => {
   const fakeOrder = generateFakeOrder();
-  log("Generated fake order:", JSON.stringify(fakeOrder, null, 2));
+  log(`Generated fake order: ${JSON.stringify(fakeOrder, null, 2)}`);
 
   const pdfBuffer = await createPdf(fakeOrder);
   log("PDF created.");

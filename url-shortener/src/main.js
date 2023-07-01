@@ -37,8 +37,7 @@ module.exports = async ({ res, req, log, error }) => {
 
   const urlEntry = await appwrite.getURLEntry(shortId);
   if (!urlEntry) {
-    if (error.code !== 404) throw error;
-    return res.send(`404: Not found.`);
+    return res.send(`Not found.`, 404);
   }
 
   return res.redirect(urlEntry.url, 302);
