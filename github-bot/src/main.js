@@ -1,52 +1,32 @@
 const getEnvironment = require("./environment");
-const { Octokit } = require("@octokit/rest");
 const { verify } = require("@octokit/webhooks-methods");
+const GithubService = require("./github");
 
 module.exports = async ({ res, req, log, error }) => {
-  const { GITHUB_WEBHOOK_SECRET } = getEnvironment();
+  const { GITHUB_WEBHOOK_SECRET, DISCORD_LINK } = getEnvironment();
+  const github = GithubService();
 
-  // Verify the webhook signature
-  const isValidWebhook = await verify(
-    GITHUB_WEBHOOK_SECRET,
-    req.bodyString,
-    req.headers["X-Hub-Signature-256"]
-  );
-  if (!isValidWebhook) {
+  const signature = req.headers["x-hub-signature-256"];
+  if (
+    typeof signature !== "string" ||
+    (await verify(GITHUB_WEBHOOK_SECRET, req.bodyString, signature))
+  ) {
     error("Invalid signature");
     return res.json({ error: "Invalid signature" }, 401);
   }
 
-  // We only care about issue events
-  if (req.headers["X-GitHub-Event"] === "issues") {
-    const issue = req.body.issue;
-    // We only care about newly opened issues
-    if (issue && req.body.action === "opened") {
-      log(`Received event for issue ${issue.number}`);
-      try {
-        await postComment(issue);
-        return res.empty();
-      } catch (err) {
-        error(`Error posting comment: ${err.message}`);
-        return res.json({ error: "Error posting comment" }, 500);
-      }
+  if (req.headers["x-github-event"] === "issues") {
+    const { issue } = req.body;
+    if (!issue || req.body.action !== "opened") {
+      log("No issue provided or not opened event");
+      return res.json({ success: true });
     }
+
+    await github.postComment(
+      issue,
+      `Thanks for the issue report @${issue.user.login}! I'm inviting you to join our Discord for quicker support: ${DISCORD_LINK}`
+    );
   }
-  return res.empty();
+
+  return res.json({ success: true });
 };
-
-async function postComment(issue) {
-  const { DISCORD_LINK, GITHUB_TOKEN } = getEnvironment();
-
-  const octokit = new Octokit({
-    auth: GITHUB_TOKEN,
-  });
-
-  const body = `Thanks for the issue report @${issue.user.login}! I'm inviting you to join our Discord for quicker support: ${DISCORD_LINK}`;
-
-  await octokit.issues.createComment({
-    owner: issue.repository.owner.login,
-    repo: issue.repository.name,
-    issue_number: issue.number,
-    body: body,
-  });
-}
