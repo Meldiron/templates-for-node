@@ -31,7 +31,7 @@ module.exports = async ({ req, log }) => {
 function parseEventData(req) {
   const { ARTICLE_DATABASE_ID, ARTICLE_COLLECTION_ID } = getEnvironment();
 
-  const requestEvent = req.headers["x-appwrite-function"];
+  const requestEvent = req.headers["x-appwrite-event"];
   const expectedEvent = `databases.${ARTICLE_DATABASE_ID}.collections.${ARTICLE_COLLECTION_ID}.documents.create`;
 
   if (requestEvent !== expectedEvent || req.body.$id) {
