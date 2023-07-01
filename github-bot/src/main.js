@@ -6,12 +6,12 @@ module.exports = async ({ res, req, log, error }) => {
   const { GITHUB_WEBHOOK_SECRET } = getEnvironment();
 
   // Verify the webhook signature
-  const isValid = await verify(
+  const isValidWebhook = await verify(
     GITHUB_WEBHOOK_SECRET,
     req.bodyString,
     req.headers["X-Hub-Signature-256"]
   );
-  if (!isValid) {
+  if (!isValidWebhook) {
     error("Invalid signature");
     return res.json({ error: "Invalid signature" }, 401);
   }
