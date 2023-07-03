@@ -6,23 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Prompt ChatGPT Demo</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@11.0.0"></script>
     <script>
-      const { Client, Functions } = Appwrite;
-
-      const client = new Client()
-        .setEndpoint("{{APPWRITE_ENDPOINT}}")
-        .setProject("{{APPWRITE_FUNCTION_PROJECT_ID}}");
-
-      const functions = new Functions(client);
-
       async function onSubmit(prompt) {
-        const response = await fetch('/', {
-          method: 'POST',
+        const response = await fetch("/", {
+          method: "POST",
           body: prompt,
           headers: {
-            'Content-Type': 'text/plain'
-          }
+            "Content-Type": "text/plain",
+          },
         });
 
         return await response.text();
