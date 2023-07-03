@@ -18,7 +18,7 @@
 
         const censoredMessage = await response.text();
 
-        return `Censored message: ${censoredMessage}`;
+        return censoredMessage;
       }
     </script>
 
@@ -42,8 +42,8 @@
             style="max-width: 50rem"
           >
             This is demo application. You can ue this app to ensure
-            implementation with Redact API works properly. Use input below
-            to enter text and get censored message as response.
+            implementation with Redact API works properly. Use input below to
+            enter text and get censored message as response.
           </p>
         </div>
       </div>
@@ -68,7 +68,7 @@
               <span class="text">Censor</span>
             </button>
           </div>
-          <template x-if="answer">
+          <template x-if="censoredMessage">
             <div class="u-flex u-flex-vertical u-gap-12">
               <div class="u-flex u-flex-vertical u-gap-12 card">
                 <div class="u-flex u-gap-12">
@@ -76,7 +76,7 @@
                 </div>
 
                 <div style="overflow-x: hidden; line-break: anywhere">
-                  <p class="u-color-text-gray" x-text="answer"></p>
+                  <p class="u-color-text-gray" x-text="censoredMessage"></p>
                 </div>
               </div>
             </div>
