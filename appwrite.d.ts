@@ -4,10 +4,15 @@ interface QueryParams {
   [key: string]: string;
 }
 
+interface AppwriteHttpHeaders extends IncomingHttpHeaders {
+  "x-appwrite-event"?: string | undefined;
+  "x-appwrite-user-id"?: string | undefined;
+}
+
 interface HttpRequest {
   bodyString: string;
-  body: unknown;
-  headers: IncomingHttpHeaders;
+  body: any;
+  headers: AppwriteHttpHeaders;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
   host: string;
   scheme: "http" | "https";
