@@ -4,10 +4,7 @@ const path = require("path");
 
 module.exports = async ({ req, res }) => {
   const {
-    PERSPECTIVE_API_KEY,
-    APPWRITE_ENDPOINT,
-    APPWRITE_FUNCTION_ID,
-    APPWRITE_FUNCTION_PROJECT_ID,
+    PERSPECTIVE_API_KEY
   } = process.env;
 
   if (!PERSPECTIVE_API_KEY) {
