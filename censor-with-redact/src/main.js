@@ -3,14 +3,9 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = async ({ req, res }) => {
-  const {
-    PERSPECTIVE_API_KEY,
-    APPWRITE_ENDPOINT,
-    APPWRITE_FUNCTION_ID,
-    APPWRITE_FUNCTION_PROJECT_ID,
-  } = process.env;
+  const { PANGEA_REDACT_TOKEN } = process.env;
 
-  if (!PERSPECTIVE_API_KEY) {
+  if (!PANGEA_REDACT_TOKEN) {
     throw new Error("Function is missing required environment variables.");
   }
 
@@ -18,14 +13,6 @@ module.exports = async ({ req, res }) => {
     let html = fs
       .readFileSync(path.join(__dirname, "../static/index.html"))
       .toString();
-
-    html = html
-      .split("{{APPWRITE_FUNCTION_ID}}")
-      .join(APPWRITE_FUNCTION_ID)
-      .split("{{APPWRITE_FUNCTION_PROJECT_ID}}")
-      .join(APPWRITE_FUNCTION_PROJECT_ID)
-      .split("{{APPWRITE_ENDPOINT}}")
-      .join(APPWRITE_ENDPOINT ?? "https://cloud.appwrite.io/v1");
 
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
@@ -35,23 +22,17 @@ module.exports = async ({ req, res }) => {
   }
 
   const response = await axios.post(
-    `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${PERSPECTIVE_API_KEY}`,
+    `https://redact.aws.eu.pangea.cloud/v1/redact`,
     JSON.stringify({
-      comment: {
-        text: req.bodyString,
-        type: "PLAIN_TEXT",
-      },
-      languages: ["en"],
-      requestedAttributes: {
-        TOXICITY: {},
-      },
+      text: req.bodyString,
     }),
     {
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${PANGEA_REDACT_TOKEN}`,
       },
     }
   );
 
-  return res.send(response.data.attributeScores.TOXICITY.summaryScore.value);
+  return res.send(response.data.result.redacted_text);
 };
