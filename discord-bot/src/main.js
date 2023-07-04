@@ -1,21 +1,11 @@
 const {
   InteractionResponseType,
-  verifyKey,
   InteractionType,
 } = require("discord-interactions");
-const getEnvironment = require("./environment");
+const discord = require("./discord");
 
 module.exports = async ({ req, res, log, error }) => {
-  const { DISCORD_PUBLIC_KEY } = getEnvironment();
-
-  const isValidRequest = verifyKey(
-    req.bodyString,
-    req.headers["x-signature-ed25519"],
-    req.headers["x-signature-timestamp"],
-    DISCORD_PUBLIC_KEY
-  );
-
-  if (!isValidRequest) {
+  if (!(await discord.verifyWebhook(req))) {
     error("Invalid request.");
     return res.send("Invalid request signature", 401);
   }
