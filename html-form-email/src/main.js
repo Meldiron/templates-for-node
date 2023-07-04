@@ -1,6 +1,7 @@
 const querystring = require("node:querystring");
-const nodemailer = require("nodemailer");
 const getEnvironment = require("./environment");
+const CorsService = require("./cors");
+const MailService = require("./mail");
 
 const ErrorCode = {
   INVALID_REQUEST: "invalid-request",
@@ -9,14 +10,7 @@ const ErrorCode = {
 };
 
 module.exports = async ({ req, res, log, error }) => {
-  const {
-    SUBMIT_EMAIL,
-    SMTP_HOST,
-    SMTP_PORT,
-    SMTP_USERNAME,
-    SMTP_PASSWORD,
-    ALLOWED_ORIGINS,
-  } = getEnvironment();
+  const { SUBMIT_EMAIL, ALLOWED_ORIGINS } = getEnvironment();
 
   if (ALLOWED_ORIGINS === "*") {
     log(
@@ -27,25 +21,21 @@ module.exports = async ({ req, res, log, error }) => {
   const { isValid, referer, origin } = isRequestValid(req);
   if (!isValid) {
     log("Invalid request.");
-    return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
-    );
+    return res.redirect(urlWithCodeParam(referer, ErrorCode.INVALID_REQUEST));
   }
   log("Request is valid.");
 
-  if (!isOriginPermitted(origin)) {
+  const cors = CorsService(origin);
+  const mail = MailService();
+
+  if (!cors.isOriginPermitted()) {
     error("Origin not permitted.");
-    return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.INVALID_REQUEST)
-    );
+    return res.redirect(urlWithCodeParam(referer, ErrorCode.INVALID_REQUEST));
   }
   log("Origin is permitted.");
 
-  const responseHeaders = {
-    "Access-Control-Allow-Origin": origin,
-  };
-
   const form = querystring.parse(req.body);
+
   if (
     !(
       form.email &&
@@ -56,47 +46,41 @@ module.exports = async ({ req, res, log, error }) => {
   ) {
     log("Missing form data.");
     return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.MISSING_FORM_FIELDS),
+      urlWithCodeParam(referer, ErrorCode.MISSING_FORM_FIELDS),
       301,
-      responseHeaders
+      cors.getHeaders()
     );
   }
   log("Form data is valid.");
 
-  const transport = nodemailer.createTransport({
-    // @ts-ignore
-    // Not sure what's going on here.
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    auth: { user: SMTP_USERNAME, pass: SMTP_PASSWORD },
-  });
-
-  const mailOptions = {
-    from: form.email,
-    to: SUBMIT_EMAIL,
-    subject: `Form submission from ${form.email}`,
-    text: formatEmailMessage(form),
-  };
-
   try {
-    await transport.sendMail(mailOptions);
+    mail.send({
+      to: SUBMIT_EMAIL,
+      from: form.email,
+      subject: `New form submission: ${origin}`,
+      text: templateFormMessage(form),
+    });
   } catch (err) {
-    error(`Error sending email: ${JSON.stringify(err, null, 2)}`);
+    error(err.message);
     return res.redirect(
-      constructErrorRedirectUrl(referer, ErrorCode.SERVER_ERROR),
+      urlWithCodeParam(referer, ErrorCode.SERVER_ERROR),
       301,
-      responseHeaders
+      cors.getHeaders()
     );
   }
+
   log("Email sent successfully.");
 
   return res.redirect(
     new URL(form._next, origin).toString(),
     301,
-    responseHeaders
+    cors.getHeaders()
   );
 };
 
+/**
+ * @returns {{ isValid: boolean, referer: string, origin: string }}
+ */
 function isRequestValid(req) {
   const referer = req.headers["referer"];
   const origin = req.headers["origin"];
@@ -105,13 +89,11 @@ function isRequestValid(req) {
   return { isValid: referer && origin && isFormRequest, referer, origin };
 }
 
-function isOriginPermitted(origin) {
-  const allowedOrigins = process.env.ALLOWED_ORIGINS;
-  if (!allowedOrigins || allowedOrigins === "*") return true;
-  const allowedOriginsArray = allowedOrigins.split(",");
-  return allowedOriginsArray.includes(origin);
-}
-function formatEmailMessage(form) {
+/**
+ * @param {import("node:querystring").ParsedUrlQuery} form
+ * @returns  {string}
+ */
+function templateFormMessage(form) {
   return `You've received a new message.\n
 ${Object.entries(form)
   .filter(([key]) => key !== "_next")
@@ -119,7 +101,7 @@ ${Object.entries(form)
   .join("\n")}`;
 }
 
-function constructErrorRedirectUrl(referer, errorCode) {
+function urlWithCodeParam(referer, errorCode) {
   const url = new URL(referer);
   url.searchParams.set("code", errorCode);
   return url.toString();
