@@ -17,16 +17,23 @@ module.exports = async ({ req, res, log }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  log(req.bodyString);
-  log(req.headers);
+  // TODO: Validate wevhook secret header
 
-  const response = await axios.post(
+  const from = req.body.from;
+
+  if (!from) {
+    throw new Error("Payload invalid.");
+  }
+
+  const text = req.body.text ?? "I only accept text messages.";
+
+  await axios.post(
     `https://messages-sandbox.nexmo.com/v1/messages`,
     JSON.stringify({
       from: "14157386102",
-      to: "421919178798",
+      to: from,
       message_type: "text",
-      text: "This is a WhatsApp Message sent from the Messages API",
+      text: `Hi there! You sent me: ${text}`,
       channel: "whatsapp",
     }),
     {
@@ -40,5 +47,5 @@ module.exports = async ({ req, res, log }) => {
     }
   );
 
-  return res.send(response.data.result.redacted_text);
+  return res.send("OK");
 };
