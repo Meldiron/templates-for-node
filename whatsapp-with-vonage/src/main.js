@@ -1,11 +1,13 @@
+const sha256 = require("sha256");
 const axios = require("axios").default;
 const fs = require("fs");
 const path = require("path");
 
 module.exports = async ({ req, res, log }) => {
-  const { VONAGE_API_KEY, VONAGE_API_SECRET } = process.env;
+  const { VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_API_SIGNATURE_SECRET } =
+    process.env;
 
-  if (!VONAGE_API_KEY || !VONAGE_API_SECRET) {
+  if (!VONAGE_API_KEY || !VONAGE_API_SECRET || !VONAGE_API_SIGNATURE_SECRET) {
     throw new Error("Function is missing required environment variables.");
   }
 
@@ -17,7 +19,14 @@ module.exports = async ({ req, res, log }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  // TODO: Validate wevhook secret header
+  const token = (req.headers.authorization ?? "").split(" ")[1];
+  var decoded = jwt.verify(token, VONAGE_API_SIGNATURE_SECRET, {
+    algorithms: ["md5"],
+  });
+
+  if (sha256(req.bodyString) != decoded["payload_hash"]) {
+    throw new Error("Invalid signature.");
+  }
 
   const from = req.body.from;
 
