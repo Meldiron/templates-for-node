@@ -3,9 +3,9 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = async ({ req, res }) => {
-  const { PANGEA_REDACT_TOKEN } = process.env;
+  const { VONAGE_API_KEY, VONAGE_API_SECRET } = process.env;
 
-  if (!PANGEA_REDACT_TOKEN) {
+  if (!VONAGE_API_KEY || !VONAGE_API_SECRET) {
     throw new Error("Function is missing required environment variables.");
   }
 
@@ -17,16 +17,22 @@ module.exports = async ({ req, res }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  if (!req.bodyString) {
-    return res.send("Missing body with a prompt.", 400);
-  }
+  log(req.bodyString);
 
   const response = await axios.post(
-    `https://redact.aws.eu.pangea.cloud/v1/redact`,
+    `https://messages-sandbox.nexmo.com/v1/messages`,
     JSON.stringify({
-      text: req.bodyString,
+      from: "14157386102",
+      to: "421919178798",
+      message_type: "text",
+      text: "This is a WhatsApp Message sent from the Messages API",
+      channel: "whatsapp",
     }),
     {
+      auth: {
+        username: VONAGE_API_KEY,
+        password: VONAGE_API_SECRET
+      },
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${PANGEA_REDACT_TOKEN}`,
