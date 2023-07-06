@@ -22,7 +22,7 @@ module.exports = async ({ req, res, log }) => {
 
   const token = (req.headers.authorization ?? "").split(" ")[1];
   var decoded = jwt.verify(token, VONAGE_API_SIGNATURE_SECRET, {
-    algorithms: ["md5"],
+    algorithms: ["HS256"],
   });
 
   if (sha256(req.bodyString) != decoded["payload_hash"]) {
