@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const sha256 = require("sha256");
 const axios = require("axios").default;
 const fs = require("fs");
