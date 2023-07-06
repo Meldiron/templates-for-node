@@ -2,7 +2,7 @@ const axios = require("axios").default;
 const fs = require("fs");
 const path = require("path");
 
-module.exports = async ({ req, res }) => {
+module.exports = async ({ req, res, log }) => {
   const { VONAGE_API_KEY, VONAGE_API_SECRET } = process.env;
 
   if (!VONAGE_API_KEY || !VONAGE_API_SECRET) {
