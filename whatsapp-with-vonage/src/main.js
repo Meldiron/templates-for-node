@@ -18,6 +18,7 @@ module.exports = async ({ req, res }) => {
   }
 
   log(req.bodyString);
+  log(req.headers);
 
   const response = await axios.post(
     `https://messages-sandbox.nexmo.com/v1/messages`,
