@@ -32,11 +32,10 @@ module.exports = async ({ req, res, log }) => {
     {
       auth: {
         username: VONAGE_API_KEY,
-        password: VONAGE_API_SECRET
+        password: VONAGE_API_SECRET,
       },
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${PANGEA_REDACT_TOKEN}`,
       },
     }
   );
