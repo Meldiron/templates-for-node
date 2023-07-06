@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const sha256 = require("sha256");
 const axios = require("axios").default;
 const fs = require("fs");
@@ -20,14 +20,14 @@ module.exports = async ({ req, res, log }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  // const token = (req.headers.authorization ?? "").split(" ")[1];
-  // var decoded = jwt.verify(token, VONAGE_API_SIGNATURE_SECRET, {
-  //   algorithms: ["HS256"],
-  // });
+  const token = (req.headers.authorization ?? "").split(" ")[1];
+  var decoded = jwt.verify(token, VONAGE_API_SIGNATURE_SECRET, {
+    algorithms: ["HS256"],
+  });
 
-  // if (sha256(req.bodyString) != decoded["payload_hash"]) {
-  //   throw new Error("Invalid signature.");
-  // }
+  if (sha256(req.bodyString) != decoded["payload_hash"]) {
+    throw new Error("Invalid signature.");
+  }
 
   const from = req.body.from;
 
