@@ -1,5 +1,5 @@
 {
-  "name": "stripe-subscriptions",
+  "name": "subscriptions-with-stripe",
   "version": "1.0.0",
   "description": "",
   "main": "src/main.js",
