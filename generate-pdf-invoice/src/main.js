@@ -1,4 +1,4 @@
-const { PDFDocument, PageSizes } = require("pdf-lib");
+const { PDFDocument } = require("pdf-lib");
 const { faker } = require("@faker-js/faker");
 
 module.exports = async ({ res, log }) => {
@@ -32,7 +32,7 @@ function generateFakeOrder() {
 
 async function createPdf({ id, date, name, items, total }) {
   const document = await PDFDocument.create();
-  const page = document.addPage(PageSizes.A4); //[595.28, 841.89]
+  const page = document.addPage([595.28, 841.89]); // A4 size
 
   page.drawText("Sample Invoice", { x: 50, y: 750, size: 20 });
   page.drawText(new Date(date).toLocaleDateString(), {

@@ -1,4 +1,4 @@
-# HTML Form Email Function
+# Email Contact Form Function
 
 ## Overview
 

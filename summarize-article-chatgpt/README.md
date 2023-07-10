@@ -1,4 +1,4 @@
-# ChatGPT Article Summarizer Function
+# Summarize Article ChatGPT Function
 
 This function enables the automatic generation of blog post summaries using OpenAI's GPT-3 model. Upon creation of a blog post document in Appwrite, this function will automatically trigger and generate a summary for the blog post content.
 

@@ -1,5 +1,5 @@
 {
-  "name": "html-form-email",
+  "name": "generate-pdf-invoice",
   "version": "1.0.0",
   "description": "",
   "main": "src/main.js",
@@ -10,6 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "nodemailer": "^6.9.3"
+    "@faker-js/faker": "^8.0.2",
+    "pdf-lib": "^1.17.1"
   }
 }
