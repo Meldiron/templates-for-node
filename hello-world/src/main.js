@@ -1,7 +1,9 @@
 import fs from "fs";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
-const staticFolder = path.join(process.cwd(), "../static");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const staticFolder = path.join(__dirname, "../static");
 
 export default async ({ req, res, log }) => {
   log("Hello, World! 👋");
