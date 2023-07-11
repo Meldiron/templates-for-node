@@ -1,11 +1,9 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-const staticFolder = path.join(__dirname, "../static");
+const staticFolder = path.join(process.cwd(), "../static");
 
-// comment 123
-
-module.exports = async ({ req, res, log }) => {
+export default async ({ req, res, log }) => {
   log("Hello, World! 👋");
 
   if (req.method === "GET") {
@@ -13,10 +11,15 @@ module.exports = async ({ req, res, log }) => {
       .readFileSync(path.join(staticFolder, "index.html"))
       .toString();
 
-    return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
+    return res
+      .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+      .end(html);
   }
 
-  return res.json({
-    message: "Hello, World! 👋",
-  });
+  res.writeHead(200, { "Content-Type": "application/json" });
+  return res.end(
+    JSON.stringify({
+      message: "Hello, World! 👋",
+    })
+  );
 };
