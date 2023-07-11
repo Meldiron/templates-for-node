@@ -1,27 +1,22 @@
-import fs from "fs";
-import path, { dirname } from "path";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const staticFolder = path.join(__dirname, "../static");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const staticFolder = join(__dirname, "../static");
 
 export default async ({ req, res, log }) => {
   log("Hello, World! 👋");
 
   if (req.method === "GET") {
-    let html = fs
-      .readFileSync(path.join(staticFolder, "index.html"))
-      .toString();
+    let html = readFileSync(join(staticFolder, "index.html")).toString();
 
-    return res
-      .writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
-      .end(html);
+    return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
-  res.writeHead(200, { "Content-Type": "application/json" });
-  return res.end(
-    JSON.stringify({
-      message: "Hello, World! 👋",
-    })
-  );
+  return res.json({
+    message: "Hello, World! 👋",
+  });
 };
