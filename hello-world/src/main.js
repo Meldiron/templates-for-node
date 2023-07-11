@@ -3,7 +3,7 @@ const path = require("path");
 
 const staticFolder = path.join(__dirname, "../static");
 
-// comment 1
+// comment 12
 
 module.exports = async ({ req, res, log }) => {
   log("Hello, World! 👋");
