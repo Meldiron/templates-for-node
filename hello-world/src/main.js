@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const staticFolder = join(__dirname, "../static");
-
+// 1
 export default async ({ req, res, log }) => {
   log("Hello, World! 👋");
 
