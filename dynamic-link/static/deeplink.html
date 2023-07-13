@@ -1,43 +1,85 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Redirecting…</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/@appwrite.io/pink" />
+    <link rel="stylesheet" href="https://unpkg.com/@appwrite.io/pink-icons" />
   </head>
   <body>
+    <main class="main-content">
+      <div class="top-cover u-padding-block-end-56">
+        <div class="container">
+          <div
+            class="u-flex u-gap-16 u-flex-justify-center u-margin-block-start-16"
+          >
+            <h1 class="heading-level-1">Redirecting…</h1>
+            <code class="u-un-break-text"></code>
+          </div>
+          <p
+            class="body-text-1 u-normal u-margin-block-start-8"
+            style="max-width: 50rem"
+          >
+            You will be redirected automatically. If nothing happens, click the
+            button below.
+            <a
+              id="manual"
+              class="button u-margin-block-start-16"
+              href="{{FALLBACK}}"
+              >Open Link</a
+            >.
+          </p>
+        </div>
+      </div>
+    </main>
+
     <script>
       const appName = "{{APP_NAME}}";
       const appPath = "{{APP_PATH}}";
       const appPackage = "{{APP_PACKAGE}}";
       const fallback = "{{FALLBACK}}";
 
-      const ua = window.navigator.userAgent;
-      const isAndroid = /Android/i.test(ua);
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      window.addEventListener("DOMContentLoaded", function () {
+        const manualAnchor = document.querySelector("#manual");
 
-      if (isAndroid) {
-        // Construct the intent url for Android
-        const intentURL = fallback
-          ? `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};S.browser_fallback_url=${encodeURIComponent(
-              fallback
-            )};end`
-          : `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};end`;
+        if (/Android/i.test(window.navigator.userAgent)) {
+          const intentURL = fallback
+            ? `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};S.browser_fallback_url=${encodeURIComponent(
+                fallback
+              )};end`
+            : `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};end`;
 
-        window.location.href = intentURL;
-        setTimeout(() => {
-          window.location.href = fallback;
-        }, 500);
-      } else if (isIOS) {
-        // Attempt to open the app using the custom scheme URL
-        window.location.href = `${app}://${path}`;
+          manualAnchor.setAttribute("href", intentURL);
 
-        // Fallback to the App Store after 1 second
-        setTimeout(() => {
-          window.location.href = fallback;
-        }, 1000);
-      } else {
-        // Default to opening the deep link in a new tab
-        window.open(`${app}://${path}`, "_blank");
-      }
+          window.location.href = intentURL;
+
+          setTimeout(() => {
+            window.location.href = fallback;
+          }, 500);
+
+          return;
+        }
+
+        if (/iPhone|iPad|iPod/i.test(window.navigator.userAgent)) {
+          const deepLink = `${app}://${path}`;
+          manualAnchor.setAttribute("href", deepLink);
+
+          window.location.href = deepLink;
+
+          setTimeout(() => {
+            window.location.href = fallback;
+          }, 500);
+          return;
+        }
+
+        return;
+        // Default to the web default URL
+        window.location.href = fallback;
+      });
     </script>
   </body>
 </html>

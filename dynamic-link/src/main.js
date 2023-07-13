@@ -43,7 +43,7 @@ export default async ({ req, res, log }) => {
       .split("{{APP_PACKAGE}}")
       .join(target.appPackage ?? "")
       .split("{{FALLBACK}}")
-      .join(target.fallback ?? "");
+      .join(target.fallback ?? target.default ?? "");
 
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
