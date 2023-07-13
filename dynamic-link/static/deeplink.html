@@ -29,6 +29,7 @@
             id="manual"
             class="button u-margin-block-start-16"
             href="{{FALLBACK}}"
+            onclick="navigateFallback()"
             >Open Link</a
           >
         </div>
@@ -40,6 +41,12 @@
       const appPath = "{{APP_PATH}}";
       const appPackage = "{{APP_PACKAGE}}";
       const fallback = "{{FALLBACK}}";
+
+      function navigateFallback() {
+        setTimeout(() => {
+          window.location.href = fallback;
+        }, 500);
+      }
 
       window.addEventListener("DOMContentLoaded", function () {
         const manualAnchor = document.querySelector("#manual");
@@ -58,10 +65,7 @@
           manualAnchor.setAttribute("href", intentURL);
 
           window.location.href = intentURL;
-
-          /**setTimeout(() => {
-            window.location.href = fallback;
-          }, 500);**/
+          navigateFallback();
 
           return;
         }
@@ -71,10 +75,7 @@
           manualAnchor.setAttribute("href", deepLink);
 
           window.location.href = deepLink;
-
-          setTimeout(() => {
-            window.location.href = fallback;
-          }, 500);
+          navigateFallback();
           return;
         }
 
