@@ -16,21 +16,28 @@ export default async ({ req, res, log }) => {
 
   const targets = config.find(({ path }) => path === req.path)?.targets;
   if (!targets) {
+    log(`No targets for path ${req.path}`);
     return res.empty();
   }
+  log(`Found targets for path ${req.path}`);
 
   const platform = detectPlatform(req.headers["user-agent"]);
+  log(`Detected platform: ${platform}`);
 
   const target = targets[platform];
   if (!target || platform === "default") {
+    log(`No target for platform ${platform}`);
     return res.redirect(targets.default);
   }
 
   if (typeof target === "string") {
+    log(`Simple redirect to ${target}`);
     return res.redirect(target);
   }
 
   if (typeof target === "object" && target.appName) {
+    log(`Deep link to app=${target.appName} path=${target.appPath}`);
+
     const template = readFileSync(
       path.join(staticFolder, "deeplink.html")
     ).toString();
@@ -48,6 +55,7 @@ export default async ({ req, res, log }) => {
     return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
+  log(`Out of ideas, returning empty response`);
   return res.empty();
 };
 
@@ -61,9 +69,11 @@ const platformDetectors = {
   desktop: (userAgent) => /Windows|Macintosh|Linux/i.test(userAgent),
 };
 
-const detectPlatform = (userAgent) =>
-  Object.entries(platformDetectors).reduce(
-    (platform, [platformName, isPlatform]) =>
-      isPlatform(userAgent) ? platformName : platform,
-    "default"
-  );
+function detectPlatform(userAgent) {
+  for (const [platform, isPlatform] of Object.entries(platformDetectors)) {
+    if (isPlatform(userAgent)) {
+      return platform;
+    }
+  }
+  return "default";
+}
