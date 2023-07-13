@@ -43,7 +43,7 @@ function getRedirectTarget(userAgent, targets) {
         const redirect = new URL(platformConfig.deepLink);
 
         if (platformConfig.fallback) {
-          redirect.searchParams.set("fallback", platformConfig.fallback);
+          redirect.searchParams.set("_fallback", platformConfig.fallback);
         }
 
         return redirect.toString();
