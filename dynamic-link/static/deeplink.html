@@ -52,7 +52,7 @@
         const manualAnchor = document.querySelector("#manual");
 
         if (/Android/i.test(window.navigator.userAgent)) {
-          const intentURL = `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;category=android.intent.category.BROWSABLE;`;
+          let intentURL = `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;category=android.intent.category.BROWSABLE;`;
 
           if (fallback) {
             intentURL += `S.browser_fallback_url=${encodeURIComponent(
