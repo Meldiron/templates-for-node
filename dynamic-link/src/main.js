@@ -23,7 +23,7 @@ export default async ({ req, res, log }) => {
 const userAgentDetectors = {
   mobile: (userAgent) =>
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      userAgent,
+      userAgent
     ),
   android: (userAgent) => /Android/i.test(userAgent),
   ios: (userAgent) => /iPhone|iPad|iPod/i.test(userAgent),

@@ -1,4 +1,4 @@
-# Deep Link Function
+# Dynamic Link Function
 
 This function is a handler for HTTP requests which redirects the user to a specific target URL based on their user-agent (which typically indicates their operating system and browser type). The redirection configuration is passed in through the `CONFIG` environment variable as a JSON string. The `CONFIG` variable is expected to contain an array of objects, where each object should have a `path` and `targets`.
 
