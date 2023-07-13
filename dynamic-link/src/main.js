@@ -27,7 +27,7 @@ export default async ({ req, res, log }) => {
   for (const platform of platforms) {
     const target = targets[platform];
     if (!target || platform === "default") {
-      log(`No target for platform ${platform}`);
+      log(`Default for platform ${platform}`);
       return res.redirect(targets.default);
     }
 
