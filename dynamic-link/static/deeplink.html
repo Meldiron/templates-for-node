@@ -71,7 +71,7 @@
         }
 
         if (/iPhone|iPad|iPod/i.test(window.navigator.userAgent)) {
-          const deepLink = `${app}://${path}`;
+          const deepLink = `${appName}://${appPath}`;
           manualAnchor.setAttribute("href", deepLink);
 
           window.location.href = deepLink;
