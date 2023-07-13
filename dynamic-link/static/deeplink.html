@@ -13,26 +13,24 @@
   <body>
     <main class="main-content">
       <div class="top-cover u-padding-block-end-56">
-        <div class="container">
-          <div
-            class="u-flex u-gap-16 u-flex-justify-center u-margin-block-start-16"
-          >
-            <h1 class="heading-level-1">Redirecting…</h1>
+        <div
+          class="container u-flex-vertical u-cross-center"
+          style="max-width: 40rem"
+        >
+          <div class="u-flex u-main-center u-margin-block-start-16">
+            <h1 class="heading-level-1">Redirecting</h1>
             <code class="u-un-break-text"></code>
           </div>
-          <p
-            class="body-text-1 u-normal u-margin-block-start-8"
-            style="max-width: 50rem"
-          >
-            You will be redirected automatically. If nothing happens, click the
-            button below.
-            <a
-              id="manual"
-              class="button u-margin-block-start-16"
-              href="{{FALLBACK}}"
-              >Open Link</a
-            >.
+          <p class="body-text-1 u-normal u-margin-block-start-8 u-text-center">
+            You will be redirected automatically. <br />
+            If nothing happens, click the button below.
           </p>
+          <a
+            id="manual"
+            class="button u-margin-block-start-16"
+            href="{{FALLBACK}}"
+            >Open Link</a
+          >
         </div>
       </div>
     </main>
@@ -75,6 +73,8 @@
           }, 500);
           return;
         }
+
+        return;
 
         window.location.href = fallback;
       });
