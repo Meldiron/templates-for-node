@@ -1,3 +1,12 @@
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const staticFolder = path.join(__dirname, "../static");
+
 export default async ({ req, res, log }) => {
   const config = JSON.parse(process.env.CONFIG ?? "[]");
 
@@ -5,22 +14,44 @@ export default async ({ req, res, log }) => {
     throw new Error("CONFIG environment variable must be set");
   }
 
-  const userAgent = req.headers["user-agent"];
-  log(`User-Agent: ${userAgent}`);
+  const targets = config.find(({ path }) => path === req.path)?.targets;
+  if (!targets) {
+    return res.empty();
+  }
 
-  for (const { path, targets } of config) {
-    if (path !== req.path) continue;
+  const platform = detectPlatform(req.headers["user-agent"]);
 
-    const redirectTarget = getRedirectTarget(userAgent, targets);
-    if (redirectTarget) return res.redirect(redirectTarget);
+  const target = targets[platform];
+  if (!target || platform === "default") {
+    return res.redirect(targets.default);
+  }
 
-    if (targets.default) return res.redirect(targets.default);
+  if (typeof target === "string") {
+    return res.redirect(target);
+  }
+
+  if (typeof target === "object" && target.appName) {
+    const template = readFileSync(
+      path.join(staticFolder, "deeplink.html")
+    ).toString();
+
+    const html = template
+      .split("{{APP_NAME}}")
+      .join(target.appName)
+      .split("{{APP_PATH}}")
+      .join(target.appPath)
+      .split("{{APP_PACKAGE}}")
+      .join(target.appPackage ?? "")
+      .split("{{FALLBACK}}")
+      .join(target.fallback ?? "");
+
+    return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
   }
 
   return res.empty();
 };
 
-const userAgentDetectors = {
+const platformDetectors = {
   mobile: (userAgent) =>
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       userAgent
@@ -30,26 +61,9 @@ const userAgentDetectors = {
   desktop: (userAgent) => /Windows|Macintosh|Linux/i.test(userAgent),
 };
 
-function getRedirectTarget(userAgent, targets) {
-  for (const [platform, isPlatform] of Object.entries(userAgentDetectors)) {
-    const platformConfig = targets[platform];
-
-    if (platformConfig && isPlatform(userAgent)) {
-      if (typeof platformConfig === "string") {
-        return platformConfig;
-      }
-
-      if (platformConfig.deepLink) {
-        const redirect = new URL(platformConfig.deepLink);
-
-        if (platformConfig.fallback) {
-          redirect.searchParams.set("_fallback", platformConfig.fallback);
-        }
-
-        return redirect.toString();
-      }
-    }
-  }
-
-  return;
-}
+const detectPlatform = (userAgent) =>
+  Object.entries(platformDetectors).reduce(
+    (platform, [platformName, isPlatform]) =>
+      isPlatform(userAgent) ? platformName : platform,
+    "default"
+  );

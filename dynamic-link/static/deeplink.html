@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <script>
+      const appName = "{{APP_NAME}}";
+      const appPath = "{{APP_PATH}}";
+      const appPackage = "{{APP_PACKAGE}}";
+      const fallback = "{{FALLBACK}}";
+
+      const ua = window.navigator.userAgent;
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+      if (isAndroid) {
+        // Construct the intent url for Android
+        const intentURL = fallback
+          ? `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};S.browser_fallback_url=${encodeURIComponent(
+              fallback
+            )};end`
+          : `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};end`;
+
+        window.location.href = intentURL;
+        setTimeout(() => {
+          window.location.href = fallback;
+        }, 500);
+      } else if (isIOS) {
+        // Attempt to open the app using the custom scheme URL
+        window.location.href = `${app}://${path}`;
+
+        // Fallback to the App Store after 1 second
+        setTimeout(() => {
+          window.location.href = fallback;
+        }, 1000);
+      } else {
+        // Default to opening the deep link in a new tab
+        window.open(`${app}://${path}`, "_blank");
+      }
+    </script>
+  </body>
+</html>
