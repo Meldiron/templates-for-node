@@ -26,7 +26,13 @@ export default async ({ req, res, log }) => {
 
   for (const platform of platforms) {
     const target = targets[platform];
-    if (!target || platform === "default") {
+
+    if (!target) {
+      log(`No redirect for platform ${platform}`);
+      continue;
+    }
+
+    if (platform === "default") {
       log(`Default for platform ${platform}`);
       return res.redirect(targets.default);
     }
@@ -70,13 +76,16 @@ const platformDetectors = {
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       userAgent
     ),
-  desktop: (userAgent) => /Windows|Macintosh|Linux/i.test(userAgent),
+  desktop: (userAgent) =>
+    !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      userAgent
+    ) && /Windows|Macintosh|Linux/i.test(userAgent),
 };
 
 function detectPlatforms(userAgent) {
-  const platforms = ["default"];
+  const platforms = [];
   for (const [platform, isPlatform] of Object.entries(platformDetectors)) {
-    if (isPlatform(userAgent)) platforms.unshift(platform);
+    if (isPlatform(userAgent)) platforms.push(platform);
   }
-  return platforms;
+  return [...platforms, "default"];
 }
