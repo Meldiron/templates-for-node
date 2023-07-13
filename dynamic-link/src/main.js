@@ -21,38 +21,42 @@ export default async ({ req, res, log }) => {
   }
   log(`Found targets for path ${req.path}`);
 
-  const platform = detectPlatform(req.headers["user-agent"]);
-  log(`Detected platform: ${platform}`);
+  const platforms = detectPlatforms(req.headers["user-agent"]);
+  log(`Detected platforms: ${platforms.join(", ")}`);
 
-  const target = targets[platform];
-  if (!target || platform === "default") {
-    log(`No target for platform ${platform}`);
-    return res.redirect(targets.default);
-  }
+  for (const platform of platforms) {
+    const target = targets[platform];
+    if (!target || platform === "default") {
+      log(`No target for platform ${platform}`);
+      return res.redirect(targets.default);
+    }
 
-  if (typeof target === "string") {
-    log(`Simple redirect to ${target}`);
-    return res.redirect(target);
-  }
+    if (typeof target === "string") {
+      log(`Simple redirect to ${target}`);
+      return res.redirect(target);
+    }
 
-  if (typeof target === "object" && target.appName) {
-    log(`Deep link to app=${target.appName} path=${target.appPath}`);
+    if (typeof target === "object" && target.appName) {
+      log(`Deep link to app=${target.appName} path=${target.appPath}`);
 
-    const template = readFileSync(
-      path.join(staticFolder, "deeplink.html")
-    ).toString();
+      const template = readFileSync(
+        path.join(staticFolder, "deeplink.html")
+      ).toString();
 
-    const html = template
-      .split("{{APP_NAME}}")
-      .join(target.appName)
-      .split("{{APP_PATH}}")
-      .join(target.appPath)
-      .split("{{APP_PACKAGE}}")
-      .join(target.appPackage ?? "")
-      .split("{{FALLBACK}}")
-      .join(target.fallback ?? target.default ?? "");
+      const html = template
+        .split("{{APP_NAME}}")
+        .join(target.appName)
+        .split("{{APP_PATH}}")
+        .join(target.appPath)
+        .split("{{APP_PACKAGE}}")
+        .join(target.appPackage ?? "")
+        .split("{{FALLBACK}}")
+        .join(target.fallback ?? target.default ?? "");
 
-    return res.send(html, 200, { "Content-Type": "text/html; charset=utf-8" });
+      return res.send(html, 200, {
+        "Content-Type": "text/html; charset=utf-8",
+      });
+    }
   }
 
   log(`Out of ideas, returning empty response`);
@@ -60,20 +64,19 @@ export default async ({ req, res, log }) => {
 };
 
 const platformDetectors = {
+  android: (userAgent) => /Android/i.test(userAgent),
+  ios: (userAgent) => /iPhone|iPad|iPod/i.test(userAgent),
   mobile: (userAgent) =>
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       userAgent
     ),
-  android: (userAgent) => /Android/i.test(userAgent),
-  ios: (userAgent) => /iPhone|iPad|iPod/i.test(userAgent),
   desktop: (userAgent) => /Windows|Macintosh|Linux/i.test(userAgent),
 };
 
-function detectPlatform(userAgent) {
+function detectPlatforms(userAgent) {
+  const platforms = ["default"];
   for (const [platform, isPlatform] of Object.entries(platformDetectors)) {
-    if (isPlatform(userAgent)) {
-      return platform;
-    }
+    if (isPlatform(userAgent)) platforms.unshift(platform);
   }
-  return "default";
+  return platforms;
 }
