@@ -45,19 +45,23 @@
         const manualAnchor = document.querySelector("#manual");
 
         if (/Android/i.test(window.navigator.userAgent)) {
-          const intentURL = fallback
-            ? `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};S.browser_fallback_url=${encodeURIComponent(
-                fallback
-              )};end`
-            : `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};end`;
+          const intentURL = `intent://${appPath}#Intent;scheme=${appName};package=${appPackage};action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;category=android.intent.category.BROWSABLE;`;
+
+          if (fallback) {
+            intentURL += `S.browser_fallback_url=${encodeURIComponent(
+              fallback
+            )}`;
+          }
+
+          intentURL += ";end";
 
           manualAnchor.setAttribute("href", intentURL);
 
           window.location.href = intentURL;
 
-          setTimeout(() => {
+          /**setTimeout(() => {
             window.location.href = fallback;
-          }, 500);
+          }, 500);**/
 
           return;
         }
