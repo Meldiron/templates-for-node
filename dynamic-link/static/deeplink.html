@@ -63,6 +63,7 @@
           intentURL += ";end";
 
           manualAnchor.setAttribute("href", intentURL);
+          manualAnchor.textContent = intentURL;
 
           window.location.href = intentURL;
           navigateFallback();
@@ -72,10 +73,13 @@
 
         if (/iPhone|iPad|iPod/i.test(window.navigator.userAgent)) {
           const deepLink = `${appName}://${appPath}`;
+
           manualAnchor.setAttribute("href", deepLink);
+          manualAnchor.textContent = deepLink;
 
           window.location.href = deepLink;
           navigateFallback();
+
           return;
         }
 
